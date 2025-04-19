@@ -1,0 +1,240 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>PrayasOS Community</title>
+    <link rel="icon" type="image/png" href="./assets/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="media-queries.css">
+
+</head>
+
+<body>
+
+
+  
+    <!-- nav bar -->
+    <nav class="nav-with-banner">
+
+        <div class="container main-nav flex">
+            <a href="#" class="company-logo">
+                <img src="./assets/asset 1.png" alt="company logo" id="mainlogo" class="hero-image">
+            </a>
+            <div class="nav-links" id="nav-links">
+
+                <ul class="flex">
+                    <li><a href="#" class="hover-link">Home</a></li>
+
+                    <li><a href="#" class="hover-link">Downloads</a></li>
+                    <li><a href="#" class="hover-link">blog</a></li>
+                    <li><a href="#" class="hover-link">Community</a></li>
+                    <li><a href="#" class="hover-link">About Us</a></li>
+                </ul>
+            </div>
+            <div>
+                <a href="signup.html" class=" sign-in-button">Sign in/Sign Up</a>
+            </div>
+            
+
+            <a href="#" class="nav-toggle hover-link" id="nav-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </a>
+            <button id="darkModeToggle" class="#">
+                <i class="fa-solid fa-moon" id="darkModeIcon"></i>
+            </button>
+        </div>
+
+    </nav>
+    <!-- companies section -->
+
+    <section class="hide">
+        <div>
+            <div id="nospace" class="small-bold-text ">
+                <marquee behavior="scroll" scrollamount="5" direction="left" loop="1">New Updates relesed Every month
+                    according to most asked questions</marquee>
+            </div>
+
+        </div>
+    </section>
+
+    <!-- header section -->
+    <header>
+        <div class="topspace ">
+            <div class="header-right hero-image">
+                <img src="./assets/asset 1.png" alt="hero image" class="hero-image " id="biglogo">
+            </div>
+            <div class="header-left container">
+                <h1>Join the PrayasOS Community</h1>
+                <p>Experience ultimate performance on low-end devices with our ultra-lightweight, fully customized
+                    OS—optimized for efficiency like no other!.</p>
+                <a href="signup.html" class="primary-button ">Get Started</a>
+                <a href="#" class="primary-button ">How to install</a>
+            </div>
+
+        </div>
+    </header>
+
+
+
+    <!-- features section -->
+
+    <section class="features-section">
+        <div class="container">
+            <div class="features-header">
+                <h2 class="features-heading-text">Didn't find an answer?</h2>
+                <a href="signup.html" class="secondary-button">Ask a new Question <i
+                        class="fa-solid fa-right-long"></i></a>
+            </div>
+            <div class="features-area flex">
+                <div class="features-card flex">
+                    <img src="./assets/asset 11.svg" alt="">
+                    <h4>2.5 million <br> average daily visitors</h4>
+
+                </div>
+                <div class="features-card flex">
+                    <img src="./assets/asset 13.svg" alt="">
+                    <h4>6000 <br> posts daily</h4>
+
+
+                </div>
+                <div class="features-card flex">
+                    <img src="./assets/asset 14.svg" alt="">
+                    <h4>2 hour average response time</h4>
+
+
+                </div>
+                <div class="features-card flex">
+                    <img src="./assets/asset 15.svg" alt="">
+                    <h4>330 million customers helped annually</h4>
+
+
+                </div>
+
+            </div>
+        </div>
+    </section>
+
+
+
+    <!-- examples section -->
+
+    <section class="examples-section">
+        <div class="container">
+            <div class="examples-header flex">
+                <h2 class="examples-heading-text">One platform, endless possibilities</h2>
+                <a href="#" class="secondary-button">See more examples <i class="fa-solid fa-right-long"></i></a>
+            </div>
+            <div class="examples-area flex">
+                <a href="#" class="examples-card">
+                    <h3 class="card-text">Can user complete a task in my software interface?</h3>
+                </a>
+                <a class="examples-card" href="#"
+                    style="background: linear-gradient(rgb(0, 0, 0, 0.1), rgb(0, 0, 0, 0.8)), url(./assets/asset\ 34.jpeg); background-size: cover;">
+                    <h3 class="card-text">Can users find important pages on my website?</h3>
+                </a>
+                <a class="examples-card" href="#">
+                    <h3 class="card-text">Is my website's intended audience clear? </h3>
+                </a>
+                <a class="examples-card" href="#">
+                    <h3 class="card-text">Do visitors understand what a page is about?</h3>
+                </a>
+            </div>
+        </div>
+    </section>
+
+    <!-- cta section -->
+
+    <section class="cta-section">
+        <div class="container flex cta-section-container">
+            <h2>Start customizing the OS </h2>
+            <p>a crystal clear documentation and this community is here to help you 24X7</p>
+            <a href="#" class="primary-button">Get Started</a>
+        </div>
+    </section>
+
+
+    <!-- subfooter -->
+
+    <div class="subfooter">
+        <div class="container flex subfooter-container">
+            <a class="hover-link" href="#">Contacts Team<br></a>
+            <a class="hover-link" href="#">Privacy Policy<br></a>
+            <a class="hover-link" href="#">Terms & Conditions</a>
+            <a class="hover-link" href="#"> PrayasOS © Copyright-2025</a>
+
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/c1fc3d2826.js" crossorigin="anonymous"></script>
+
+    <script>
+        const toggleButton = document.getElementById('nav-toggle');
+        const navLinks = document.getElementById('nav-links');
+        
+
+        // Hide top banner after 5 seconds with smooth transition
+       
+        toggleButton.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        })
+    </script>
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const image = document.getElementById('mainlogo'); //change top logo
+        const bigimage = document.getElementById('biglogo'); //change big logo
+        const root = document.documentElement;
+        const icon = document.getElementById('darkModeIcon'); //change icon
+
+let isDarkMode = false;
+
+darkModeToggle.addEventListener('click', () => {
+  const root = document.documentElement;
+  
+  if (!isDarkMode) {
+    // Apply dark mode variables
+    root.style.setProperty('--primary-text-color', '#d3e0ea');
+    root.style.setProperty('--secondary-text-color', '#b0b8c1');
+    root.style.setProperty('--accent-color', '#66ffcc');
+    root.style.setProperty('--accent-color-dark', '#33bbee');
+    root.style.setProperty('--nav-bg-color', 'rgba(17, 17, 27, 0.95)');
+    root.style.setProperty('--nav-text-color', '#d9bfff');
+    root.style.setProperty('--nav-hover-color', '#e0c2ff');
+    root.style.setProperty('--all-white', '#000000');
+    root.style.setProperty('--all-black', '#ffffff');
+    image.src = './assets/asset 11.png';
+    bigimage.src = './assets/asset 11.png';
+    document.body.style.backgroundImage = "url('./assets/darkbackground1.png')";
+
+    icon.classList.remove('fa-moon'); //remove moon icon
+    icon.classList.add('fa-sun'); //add sun icon
+    isDarkMode = true;
+  } else {
+    // Reset back to light mode variables
+    root.style.setProperty('--primary-text-color', '#183b56');
+    root.style.setProperty('--secondary-text-color', '#2f3030');
+    root.style.setProperty('--accent-color', '#10A37F');
+    root.style.setProperty('--accent-color-dark', '#0673b7');
+    root.style.setProperty('--nav-bg-color', 'rgba(24, 24, 37, 0.8)');
+    root.style.setProperty('--nav-text-color', 'rgb(55, 0, 122');
+    root.style.setProperty('--nav-hover-color', '#a78bfa');
+    root.style.setProperty('--all-white', '#ffffff');
+    root.style.setProperty('--all-black', '#000000');
+    image.src = './assets/asset 1.png';
+    bigimage.src = './assets/asset 1.png';
+    document.body.style.backgroundImage = "url('./assets/background.png')";
+     // Change icon back to Moon
+     icon.classList.remove('fa-sun');
+    icon.classList.add('fa-moon');
+    isDarkMode = false;
+  }
+});
+
+      </script>
+      
+    
+</body>
+
+</html>
