@@ -1,3 +1,24 @@
+/* Signup Form Styles */
+:root {
+    --primary-text-color: #183b56;
+    --secondary-text-color: #161717;
+    --accent-color: #10A37F;
+    --accent-color-dark: #0673b7;
+    --nav-bg-color: rgba(24, 24, 37, 0.8);
+    --nav-text-color: rgb(69, 0, 152);
+    --nav-hover-color: #a78bfa;
+    --all-white: #ffffff;
+    --nav-link-hover: #080707;
+    --all-black: #000000;
+    --no-color-change: #fafafa1f;
+    --no-color-tranparent: #fafafa0c;
+    --border-color: #ffffff66;
+    --box-shadow: 0 0 5px #10a37f4d;
+
+    --success-color: #2e7d32;
+    --error-color: #c62828;
+}
+
 *{
     margin:0;
     padding:0;
@@ -46,33 +67,40 @@ body {
 }
 
 .form-logo img {
-    max-width: 200px;
-    height: auto;
-    margin: 0 auto;
-    display: block;
+    width: 150px;
+    margin-bottom: 20px;
 }
 
 .container {
-    max-width: 400px;
-    margin: 30px auto;
-    padding: 20px;
-    position: relative;
-    z-index: 2;
-    background: rgba(255, 255, 255, 0.9);
-    width: 450px;
-    padding: 1.5rem;
-    border-radius: 10px;
-    box-shadow: 0 20px 35px rgba(0, 0, 0, 0.2);
-    backdrop-filter: blur(5px);
+    
+     margin: 30px auto;
+     position: relative;
+     margin-top: realtive;
+     padding-top: 30px;
+     padding-bottom: 30px;
+     width: 450px;
+     z-index: 2;
+     max-width: 400px;
+     margin-inline: auto;
+     padding-inline: var(--padding-inline-section);
+     overflow: hidden;
+     padding: 1.5rem;
+     align-items: center;
+     background: transparent;
+     backdrop-filter: blur(10px);
+     -webkit-backdrop-filter: blur(10px);
+     border-radius: 12px;
+     /* border: 4px solid var(--all-white); */
+     border: 4px solid var(--border-color);
+     box-shadow: 0 20px 35px var(--no-color-change);
 }
 
 .form-title {
+    color: var(--nav-text-color);
     text-align: center;
     margin-bottom: 30px;
-    color: var(--primary-text-color);
     font-size: 1.5rem;
-    font-weight: bold;
-    padding: 0;
+    font-weight: 500;
 }
 
 form{
@@ -87,21 +115,20 @@ form{
     left: 10px;
     top: 50%;
     transform: translateY(-50%);
-    color: var(--secondary-text-color);
+    color: var(--nav-text-color);
 }
 .input-group input{
     width: 100%;
-    padding: 12px 40px;
-    border: 1px solid var(--secondary-text-color);
+    padding: 10px 40px;
+    border: 1px solid var(--nav-text-color);
     border-radius: 5px;
-    font-size: 16px;
-    transition: all 0.3s ease;
-    background: rgba(255, 255, 255, 0.9);
+    background: var(--no-color-tranparent);
+    color: var(--primary-text-color);
 }
 .input-group input:focus{
     border-color: var(--accent-color);
     outline: none;
-    box-shadow: 0 0 5px rgba(16, 163, 127, 0.3);
+    box-shadow: var(--box-shadow);
 }
 .input-group label{
     position: absolute;
@@ -109,17 +136,16 @@ form{
     top: 50%;
     transform: translateY(-50%);
     color: var(--secondary-text-color);
-    transition: all 0.3s ease;
+    transition: 0.3s;
     pointer-events: none;
-    background: transparent;
 }
 .input-group input:focus + label,
-.input-group input:not(:placeholder-shown) + label {
-    top: -10px;
+.input-group input:valid + label {
+    top: -5px;
     left: 10px;
+    background: transparent;
+    padding: 0 7px;
     font-size: 12px;
-    background: white;
-    padding: 0 5px;
     color: var(--accent-color);
 }
 .recover{
@@ -129,25 +155,30 @@ form{
 }
 .recover a{
     text-decoration:none;
-    color:rgb(125,125,235);
+    /* color:var(--accent-color); */
 }
 .recover a:hover{
-    color:blue;
+    color:var(--nav-hover-color);
     text-decoration:underline;
 }
 .btn{
     width: 100%;
-    padding: 12px;
-    background-color: var(--accent-color);
-    color: white;
+    padding: 10px;
+    background: var(--accent-color-dark);
+    color: var(--all-white);
     border: none;
     border-radius: 5px;
-    font-size: 16px;
     cursor: pointer;
-    transition: background-color 0.3s ease;
+    transition: 0.3s;
+    
 }
+.signButton{
+    font-weight: 400;
+    font-size: 1.2rem;
+}
+    
 .btn:hover{
-    background-color: var(--accent-color-dark);
+    background: var(--nav-hover-color);
 }
 .or{
     text-align: center;
@@ -170,7 +201,6 @@ form{
 }
 .links{
     text-align: center;
-    margin-top: 20px;
 }
 .links p{
     color: var(--secondary-text-color);
@@ -181,29 +211,32 @@ form{
     border: none;
     color: var(--accent-color);
     cursor: pointer;
-    font-size: 16px;
-    transition: color 0.3s ease;
+    text-decoration: underline;
 }
 .links button:hover{
-    color: var(--accent-color-dark);
+    color: var(--nav-hover-color);
 }
 .messageDiv{
-    padding: 10px;
+    padding: 5px;
     margin-bottom: 20px;
     border-radius: 5px;
     text-align: center;
+    color: var(--all-black);
+    background: var(--all-white);
 }
 .messageDiv.error{
-    background-color: #ffebee;
-    color: #c62828;
+    background-color: var(--error-color);
+    color: var(--error-color);
+   
 }
 .messageDiv.success{
-    background-color: #e8f5e9;
-    color: #2e7d32;
+    background-color: var(--success-color);
+    color: var(--success-color);
+    
 }
 /* Responsive styles */
 @media screen and (max-width: 768px) {
-    .container {
+    .container#signup, .container#signIn {
         width: 90%;
         margin: 20px auto;
     }
@@ -213,7 +246,8 @@ form{
     }
     
     .form-title {
-        font-size: 24px;
+        font-size: 1rem;
+        font-weight: 200;
     }
     
     .input-group input {
@@ -229,4 +263,69 @@ form{
     .form-logo img {
         max-width: 120px;
     }
+}
+.spin-image {
+    width: 200px;
+    height: auto;
+    animation: spin 50s linear infinite;
+    transform-origin: center center;
+}
+
+@keyframes spin {
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
+}
+
+/* Dark Mode Toggle Styles */
+.dark-mode-toggle {
+    position: fixed;
+    top: 20px;
+    right: 20px;
+    z-index: 1000;
+}
+
+#darkModeToggle {
+    background-color: var(--all-white);
+    border: 1px solid var(--all-black);
+    color: var(--all-black);
+    font-size: 1.2rem;
+    cursor: pointer;
+    width: 40px;
+    height: 40px;
+    padding: 0;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: background-color 0.3s ease, color 0.3s ease, transform 0.3s ease;
+}
+
+#darkModeToggle:hover {
+    background-color: var(--nav-hover-color);
+    border-color: var(--nav-text-color);
+    transform: scale(1.1);
+}
+
+#darkModeIcon {
+    transition: transform 0.3s ease;
+}
+
+#darkModeToggle:active #darkModeIcon {
+    transform: rotate(180deg);
+}
+
+#darkModeToggle i {
+    width: 20px;
+    height: 20px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#darkModeToggle:hover i {
+    transform: rotate(10deg);
 }

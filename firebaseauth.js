@@ -26,68 +26,94 @@ function showMessage(message, divId){
        messageDiv.style.opacity=0;
    },5000);
 }
-const signUp=document.getElementById('submitSignUp');
-signUp.addEventListener('click', (event)=>{
-   event.preventDefault();
-   const email=document.getElementById('rEmail').value;
-   const password=document.getElementById('rPassword').value;
-   const firstName=document.getElementById('fName').value;
-   const lastName=document.getElementById('lName').value;
 
-   const auth=getAuth();
-   const db=getFirestore();
+// Store the original page URL when redirecting to signup
+if (window.location.pathname.includes('signup.html')) {
+    const originalPage = sessionStorage.getItem('originalPage');
+    if (!originalPage) {
+        sessionStorage.setItem('originalPage', document.referrer);
+    }
+}
 
-   createUserWithEmailAndPassword(auth, email, password)
-   .then((userCredential)=>{
-       const user=userCredential.user;
-       const userData={
-           email: email,
-           firstName: firstName,
-           lastName:lastName
-       };
-       showMessage('Account Created Successfully', 'signUpMessage');
-       const docRef=doc(db, "users", user.uid);
-       setDoc(docRef,userData)
-       .then(()=>{
-           window.location.href='index.html';
-       })
-       .catch((error)=>{
-           console.error("error writing document", error);
+// Sign In handler
+const signIn = document.getElementById('submitSignIn');
+signIn.addEventListener('click', (event) => {
+    event.preventDefault();
+    const email = document.getElementById('email').value;
+    const password = document.getElementById('password').value;
+    const auth = getAuth();
 
-       });
-   })
-   .catch((error)=>{
-       const errorCode=error.code;
-       if(errorCode=='auth/email-already-in-use'){
-           showMessage('Email Address Already Exists !!!', 'signUpMessage');
-       }
-       else{
-           showMessage('unable to create User', 'signUpMessage');
-       }
-   })
+    signInWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            localStorage.setItem('loggedInUserId', user.uid);
+            
+            // Get the original page from sessionStorage
+            const originalPage = sessionStorage.getItem('originalPage');
+            if (originalPage && originalPage.includes('chat.html')) {
+                window.location.href = 'chat.html';
+            } else {
+                window.location.href = 'index.html';
+            }
+            sessionStorage.removeItem('originalPage');
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            if (errorCode === 'auth/invalid-credential') {
+                showMessage('Incorrect Email or Password', 'signInMessage');
+            } else {
+                showMessage('Account does not Exist', 'signInMessage');
+            }
+        });
 });
 
-const signIn=document.getElementById('submitSignIn');
-signIn.addEventListener('click', (event)=>{
-   event.preventDefault();
-   const email=document.getElementById('email').value;
-   const password=document.getElementById('password').value;
-   const auth=getAuth();
+// Sign Up handler
+const signUp = document.getElementById('submitSignUp');
+signUp.addEventListener('click', (event) => {
+    event.preventDefault();
+    const email = document.getElementById('rEmail').value;
+    const password = document.getElementById('rPassword').value;
+    const firstName = document.getElementById('fName').value;
+    const lastName = document.getElementById('lName').value;
 
-   signInWithEmailAndPassword(auth, email,password)
-   .then((userCredential)=>{
-       showMessage('login is successful', 'signInMessage');
-       const user=userCredential.user;
-       localStorage.setItem('loggedInUserId', user.uid);
-       window.location.href='homepage.html';
-   })
-   .catch((error)=>{
-       const errorCode=error.code;
-       if(errorCode==='auth/invalid-credential'){
-           showMessage('Incorrect Email or Password', 'signInMessage');
-       }
-       else{
-           showMessage('Account does not Exist', 'signInMessage');
-       }
-   })
-})
+    const auth = getAuth();
+    const db = getFirestore();
+
+    createUserWithEmailAndPassword(auth, email, password)
+        .then((userCredential) => {
+            const user = userCredential.user;
+            const userData = {
+                email: email,
+                firstName: firstName,
+                lastName: lastName
+            };
+            
+            // Store user data in Firestore
+            setDoc(doc(db, "users", user.uid), userData)
+                .then(() => {
+                    localStorage.setItem('loggedInUserId', user.uid);
+                    showMessage('Account Created Successfully', 'signUpMessage');
+                    
+                    // Get the original page from sessionStorage
+                    const originalPage = sessionStorage.getItem('originalPage');
+                    if (originalPage && originalPage.includes('chat.html')) {
+                        window.location.href = 'chat.html';
+                    } else {
+                        window.location.href = 'index.html';
+                    }
+                    sessionStorage.removeItem('originalPage');
+                })
+                .catch((error) => {
+                    console.error("Error writing document:", error);
+                    showMessage('Error creating account', 'signUpMessage');
+                });
+        })
+        .catch((error) => {
+            const errorCode = error.code;
+            if (errorCode === 'auth/email-already-in-use') {
+                showMessage('Email Address Already Exists !!!', 'signUpMessage');
+            } else {
+                showMessage('Unable to create User', 'signUpMessage');
+            }
+        });
+});

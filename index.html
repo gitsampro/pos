@@ -5,7 +5,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>PrayasOS Community</title>
+    <title>PrayasOS </title>
     <link rel="icon" type="image/png" href="./assets/favicon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="media-queries.css">
@@ -18,27 +18,34 @@
   
     <!-- nav bar -->
     <nav class="nav-with-banner">
-
         <div class="container main-nav flex">
             <a href="#" class="company-logo">
                 <img src="./assets/asset 1.png" alt="company logo" id="mainlogo" class="hero-image">
             </a>
             <div class="nav-links" id="nav-links">
-
                 <ul class="flex">
                     <li><a href="#" class="hover-link">Home</a></li>
-
-                    <li><a href="#" class="hover-link">Downloads</a></li>
+                    <li><a href="download.html" class="hover-link">Downloads</a></li>
                     <li><a href="#" class="hover-link">blog</a></li>
-                    <li><a href="#" class="hover-link">Community</a></li>
+                    <li><a href="chat.html" class="hover-link">Community</a></li>
                     <li><a href="#" class="hover-link">About Us</a></li>
                 </ul>
             </div>
-            <div>
-                <a href="signup.html" class=" sign-in-button">Sign in/Sign Up</a>
+            <div class="auth-section">
+                <a href="signup.html" class="sign-in-button" id="signInUpBtn">Sign in/Sign Up</a>
+                <div class="user-menu" style="display: none;">
+                    <a href="#" class="user-email short-button sign-in-button" id="userEmail"></a>
+                    <div class="user-popup" id="userPopup">
+                        <div class="popup-content">
+                            <div class="user-details">
+                                <p>Name: <span id="popupFName"></span> <span id="popupLName"></span></p>
+                                <p>Email: <span id="popupEmail"></span></p>
+                            </div>
+                            <button id="logoutBtn" class="logout-button">Logout</button>
+                        </div>
+                    </div>
+                </div>
             </div>
-            
-
             <a href="#" class="nav-toggle hover-link" id="nav-toggle">
                 <i class="fa-solid fa-bars"></i>
             </a>
@@ -46,8 +53,20 @@
                 <i class="fa-solid fa-moon" id="darkModeIcon"></i>
             </button>
         </div>
-
     </nav>
+    <div>
+   
+     <!-- User Details Popup -->
+    <div class="user-popup" id="userPopup">
+        <div class="popup-content">
+            <div class="user-details">
+                <p>First Name: <span id="popupFName"></span></p>
+                <p>Last Name: <span id="popupLName"></span></p>
+                <p>Email: <span id="popupEmail"></span></p>
+            </div>
+            <button id="logoutBtn" class="logout-button">Logout</button>
+        </div>
+    </div>
     <!-- companies section -->
 
     <section class="hide">
@@ -169,72 +188,87 @@
     </div>
 
     <script src="https://kit.fontawesome.com/c1fc3d2826.js" crossorigin="anonymous"></script>
+    <script type="module" src="homepage.js"></script>
+
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const image = document.getElementById('mainlogo');
+        const bigimage = document.getElementById('biglogo');
+        const root = document.documentElement;
+        const icon = document.getElementById('darkModeIcon');
+
+        // Check localStorage for dark mode state
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        // Apply initial state
+        if (isDarkMode) {
+            applyDarkMode();
+        }
+
+        function applyDarkMode() {
+            root.style.setProperty('--primary-text-color', '#d3e0ea');
+            root.style.setProperty('--secondary-text-color', '#b0b8c1');
+            root.style.setProperty('--accent-color', '#66ffcc');
+            root.style.setProperty('--accent-color-dark', '#33bbee');
+            root.style.setProperty('--nav-bg-color', 'rgba(17, 17, 27, 0.95)');
+            root.style.setProperty('--nav-text-color', '#d9bfff');
+            root.style.setProperty('--nav-hover-color', '#e0c2ff');
+            root.style.setProperty('--all-white', '#000000');
+            root.style.setProperty('--all-black', '#ffffff');
+            root.style.setProperty('--popup-bg-color', '#1c86efd5');
+            if (image) image.src = './assets/asset 11.png';
+            if (bigimage) bigimage.src = './assets/asset 11.png';
+            document.body.style.backgroundImage = "url('./assets/darkbackground1.png')";
+            if (icon) {
+                icon.classList.remove('fa-moon');
+                icon.classList.add('fa-sun');
+            }
+        }
+
+        function applyLightMode() {
+            root.style.setProperty('--primary-text-color', '#183b56');
+            root.style.setProperty('--secondary-text-color', '#2f3030');
+            root.style.setProperty('--accent-color', '#10A37F');
+            root.style.setProperty('--accent-color-dark', '#0673b7');
+            root.style.setProperty('--nav-bg-color', 'rgba(24, 24, 37, 0.8)');
+            root.style.setProperty('--nav-text-color', 'rgb(55, 0, 122)');
+            root.style.setProperty('--nav-hover-color', '#a78bfa');
+            root.style.setProperty('--all-white', '#ffffff');
+            root.style.setProperty('--all-black', '#000000');
+            root.style.setProperty('--popup-bg-color', '#ffffff');
+            if (image) image.src = './assets/asset 1.png';
+            if (bigimage) bigimage.src = './assets/asset 1.png';
+            document.body.style.backgroundImage = "url('./assets/background.png')";
+            if (icon) {
+                icon.classList.remove('fa-sun');
+                icon.classList.add('fa-moon');
+            }
+        }
+
+        if (darkModeToggle) {
+            darkModeToggle.addEventListener('click', () => {
+                isDarkMode = !isDarkMode;
+                localStorage.setItem('darkMode', isDarkMode);
+                
+                if (isDarkMode) {
+                    applyDarkMode();
+                } else {
+                    applyLightMode();
+                }
+            });
+        }
+    </script>
 
     <script>
         const toggleButton = document.getElementById('nav-toggle');
         const navLinks = document.getElementById('nav-links');
-        
 
-        // Hide top banner after 5 seconds with smooth transition
-       
-        toggleButton.addEventListener('click', () => {
-            navLinks.classList.toggle('active');
-        })
+        if (toggleButton) {
+            toggleButton.addEventListener('click', () => {
+                navLinks.classList.toggle('active');
+            });
+        }
     </script>
-    <script>
-        const darkModeToggle = document.getElementById('darkModeToggle');
-        const image = document.getElementById('mainlogo'); //change top logo
-        const bigimage = document.getElementById('biglogo'); //change big logo
-        const root = document.documentElement;
-        const icon = document.getElementById('darkModeIcon'); //change icon
-
-let isDarkMode = false;
-
-darkModeToggle.addEventListener('click', () => {
-  const root = document.documentElement;
-  
-  if (!isDarkMode) {
-    // Apply dark mode variables
-    root.style.setProperty('--primary-text-color', '#d3e0ea');
-    root.style.setProperty('--secondary-text-color', '#b0b8c1');
-    root.style.setProperty('--accent-color', '#66ffcc');
-    root.style.setProperty('--accent-color-dark', '#33bbee');
-    root.style.setProperty('--nav-bg-color', 'rgba(17, 17, 27, 0.95)');
-    root.style.setProperty('--nav-text-color', '#d9bfff');
-    root.style.setProperty('--nav-hover-color', '#e0c2ff');
-    root.style.setProperty('--all-white', '#000000');
-    root.style.setProperty('--all-black', '#ffffff');
-    image.src = './assets/asset 11.png';
-    bigimage.src = './assets/asset 11.png';
-    document.body.style.backgroundImage = "url('./assets/darkbackground1.png')";
-
-    icon.classList.remove('fa-moon'); //remove moon icon
-    icon.classList.add('fa-sun'); //add sun icon
-    isDarkMode = true;
-  } else {
-    // Reset back to light mode variables
-    root.style.setProperty('--primary-text-color', '#183b56');
-    root.style.setProperty('--secondary-text-color', '#2f3030');
-    root.style.setProperty('--accent-color', '#10A37F');
-    root.style.setProperty('--accent-color-dark', '#0673b7');
-    root.style.setProperty('--nav-bg-color', 'rgba(24, 24, 37, 0.8)');
-    root.style.setProperty('--nav-text-color', 'rgb(55, 0, 122');
-    root.style.setProperty('--nav-hover-color', '#a78bfa');
-    root.style.setProperty('--all-white', '#ffffff');
-    root.style.setProperty('--all-black', '#000000');
-    image.src = './assets/asset 1.png';
-    bigimage.src = './assets/asset 1.png';
-    document.body.style.backgroundImage = "url('./assets/background.png')";
-     // Change icon back to Moon
-     icon.classList.remove('fa-sun');
-    icon.classList.add('fa-moon');
-    isDarkMode = false;
-  }
-});
-
-      </script>
-      
-    
 </body>
 
 </html>

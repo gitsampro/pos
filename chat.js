@@ -36,10 +36,49 @@ const navToggle = document.getElementById('nav-toggle');
 const searchInput = document.getElementById('searchInput');
 
 // Check authentication
-const userId = localStorage.getItem('loggedInUserId');
-if (!userId) {
-    window.location.href = 'signup.html';
-}
+onAuthStateChanged(auth, (user) => {
+    if (!user) {
+        // Store the current page before redirecting
+        sessionStorage.setItem('originalPage', window.location.href);
+        window.location.href = 'signup.html';
+    } else {
+        // User is signed in, load their data
+        const userId = user.uid;
+        localStorage.setItem('loggedInUserId', userId);
+        
+        // Update UI for logged in state
+        const signInUpBtn = document.getElementById('signInUpBtn');
+        const userMenu = document.querySelector('.user-menu');
+        
+        if (signInUpBtn) signInUpBtn.style.display = 'none';
+        if (userMenu) userMenu.style.display = 'block';
+        
+        // Get user data from Firestore
+        const userDoc = doc(db, "users", userId);
+        getDoc(userDoc)
+            .then((docSnap) => {
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    // Update UI with user data
+                    if (document.getElementById('userEmail')) {
+                        document.getElementById('userEmail').textContent = userData.email;
+                    }
+                    if (document.getElementById('popupFName')) {
+                        document.getElementById('popupFName').textContent = userData.firstName;
+                    }
+                    if (document.getElementById('popupLName')) {
+                        document.getElementById('popupLName').textContent = userData.lastName;
+                    }
+                    if (document.getElementById('popupEmail')) {
+                        document.getElementById('popupEmail').textContent = userData.email;
+                    }
+                }
+            })
+            .catch((error) => {
+                console.error("Error getting user data:", error);
+            });
+    }
+});
 
 // Load questions when the page loads
 document.addEventListener('DOMContentLoaded', async () => {
@@ -737,35 +776,6 @@ askQuestionBtn.addEventListener('click', () => {
         '<i class="fa-solid fa-minus"></i> Cancel';
 });
 
-// Check authentication state and load questions
-onAuthStateChanged(auth, (user) => {
-    const loggedInUserId = localStorage.getItem('loggedInUserId');
-    if (loggedInUserId) {
-        const docRef = doc(db, "users", loggedInUserId);
-        getDoc(docRef)
-            .then((docSnap) => {
-                if (docSnap.exists()) {
-                    const userData = docSnap.data();
-                    document.getElementById('loggedUserEmail').innerText = userData.email;
-                    document.getElementById('popupFName').innerText = userData.firstName;
-                    document.getElementById('popupLName').innerText = userData.lastName;
-                    document.getElementById('popupEmail').innerText = userData.email;
-                    loadQuestions();
-                } else {
-                    console.log("No document found matching id");
-                    window.location.href = 'index.html';
-                }
-            })
-            .catch((error) => {
-                console.log("Error getting document:", error);
-                window.location.href = 'index.html';
-            });
-    } else {
-        console.log("User ID not found in Local storage");
-        window.location.href = 'index.html';
-    }
-});
-
 // Add search functionality
 searchInput.addEventListener('input', (e) => {
     currentPage = 1; // Reset to first page when searching
@@ -826,4 +836,74 @@ style.textContent = `
         color: #a94442;
     }
 `;
-document.head.appendChild(style); 
+document.head.appendChild(style);
+
+// Initialize dark mode
+document.addEventListener('DOMContentLoaded', () => {
+    const darkModeToggle = document.getElementById('darkModeToggle');
+    const image = document.getElementById('mainlogo');
+    const bigimage = document.getElementById('biglogo');
+    const root = document.documentElement;
+    const icon = document.getElementById('darkModeIcon');
+
+    // Check localStorage for dark mode state
+    let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+    // Apply initial state
+    if (isDarkMode) {
+        applyDarkMode();
+    }
+
+    function applyDarkMode() {
+        root.style.setProperty('--primary-text-color', '#d3e0ea');
+        root.style.setProperty('--secondary-text-color', '#b0b8c1');
+        root.style.setProperty('--accent-color', '#66ffcc');
+        root.style.setProperty('--accent-color-dark', '#33bbee');
+        root.style.setProperty('--nav-bg-color', 'rgba(17, 17, 27, 0.95)');
+        root.style.setProperty('--nav-text-color', '#d9bfff');
+        root.style.setProperty('--nav-hover-color', '#e0c2ff');
+        root.style.setProperty('--all-white', '#000000');
+        root.style.setProperty('--all-black', '#ffffff');
+        root.style.setProperty('--popup-bg-color', '#1c86efd5');
+        root.style.setProperty('--body-bg-image', "url('./assets/darkbackground1.png')");
+        if (image) image.src = './assets/asset 11.png';
+        if (bigimage) bigimage.src = './assets/asset 11.png';
+        if (icon) {
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+    }
+
+    function applyLightMode() {
+        root.style.setProperty('--primary-text-color', '#183b56');
+        root.style.setProperty('--secondary-text-color', '#2f3030');
+        root.style.setProperty('--accent-color', '#10A37F');
+        root.style.setProperty('--accent-color-dark', '#0673b7');
+        root.style.setProperty('--nav-bg-color', 'rgba(24, 24, 37, 0.8)');
+        root.style.setProperty('--nav-text-color', 'rgb(55, 0, 122)');
+        root.style.setProperty('--nav-hover-color', '#a78bfa');
+        root.style.setProperty('--all-white', '#ffffff');
+        root.style.setProperty('--all-black', '#000000');
+        root.style.setProperty('--popup-bg-color', '#ffffff');
+        root.style.setProperty('--body-bg-image', "url('./assets/background.png')");
+        if (image) image.src = './assets/asset 1.png';
+        if (bigimage) bigimage.src = './assets/asset 1.png';
+        if (icon) {
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
+    }
+
+    if (darkModeToggle) {
+        darkModeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            if (isDarkMode) {
+                applyDarkMode();
+            } else {
+                applyLightMode();
+            }
+        });
+    }
+}); 

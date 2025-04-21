@@ -1,16 +1,42 @@
-const signUpButton=document.getElementById('signUpButton');
-const signInButton=document.getElementById('signInButton');
-const signInForm=document.getElementById('signIn');
-const signUpForm=document.getElementById('signup');
+import { auth } from './js/auth.js';
+import { darkMode } from './js/darkMode.js';
+import { navigation } from './js/navigation.js';
 
-signUpButton.addEventListener('click',function(){
-    signInForm.style.display="none";
-    signUpForm.style.display="block";
-})
-signInButton.addEventListener('click', function(){
-    signInForm.style.display="block";
-    signUpForm.style.display="none";
-})
+// Initialize modules
+document.addEventListener('DOMContentLoaded', () => {
+    // Initialize dark mode
+    darkMode.init();
+
+    // Initialize navigation
+    navigation.init();
+
+    // Update user display if logged in
+    auth.updateUserDisplay();
+
+    // Add logout event listener
+    const logoutBtn = document.getElementById('logoutBtn');
+    if (logoutBtn) {
+        logoutBtn.addEventListener('click', auth.handleLogout);
+    }
+});
+
+// Form toggle functionality
+const signUpButton = document.getElementById('signUpButton');
+const signInButton = document.getElementById('signInButton');
+const signInForm = document.getElementById('signIn');
+const signUpForm = document.getElementById('signup');
+
+if (signUpButton && signInButton) {
+    signUpButton.addEventListener('click', () => {
+        signInForm.style.display = "none";
+        signUpForm.style.display = "block";
+    });
+
+    signInButton.addEventListener('click', () => {
+        signInForm.style.display = "block";
+        signUpForm.style.display = "none";
+    });
+}
 
 // Get DOM elements
 const nav = document.querySelector('nav');
@@ -65,3 +91,4 @@ window.addEventListener('scroll', () => {
     
     lastScroll = currentScroll;
 });
+ 

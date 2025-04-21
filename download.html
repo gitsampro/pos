@@ -1,16 +1,16 @@
 <!DOCTYPE html>
 <html lang="en">
+
 <head>
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Community Forum - PrayasOS</title>
+    <title>Downloads - PrayasOS</title>
     <link rel="icon" type="image/png" href="./assets/favicon.png">
     <link rel="stylesheet" href="style.css">
     <link rel="stylesheet" href="media-queries.css">
-    
-    
 </head>
+
 <body>
     <!-- nav bar -->
     <nav class="nav-with-banner">
@@ -23,8 +23,8 @@
                     <li><a href="index.html" class="hover-link">Home</a></li>
                     <li><a href="download.html" class="hover-link">Downloads</a></li>
                     <li><a href="blog.html" class="hover-link">blog</a></li>
-                    <li><a href="chat.html" class="hover-link">Community</a></li>
-                    <li><a href="about.html" class="hover-link">About Us</a></li>
+                    <li><a href="#" class="hover-link">Community</a></li>
+                    <li><a href="#" class="hover-link">About Us</a></li>
                 </ul>
             </div>
             <div class="auth-section">
@@ -51,83 +51,79 @@
         </div>
     </nav>
 
-    <!-- Chat Container -->
-    <div class="chat-container container">
-        <button class="ask-question-btn " id="askQuestionBtn">
-            <i class="fa-solid fa-plus"></i>
-            Ask a Question
-        </button>
-        <form class="question-form" id="questionForm">
-            <div class="form-group">
-                <label for="questionTitle">Question Title</label>
-                <input type="text" id="questionTitle" required placeholder="Enter a clear title for your question">
+    <!-- header section -->
+    <header>
+        <div class="topspace">
+            <div class="header-right hero-image">
+                <img src="./assets/asset 1.png" alt="hero image" class="hero-image" id="biglogo">
             </div>
-            <div class="form-group">
-                <label for="questionDescription">Question Description</label>
-                <textarea id="questionDescription" required placeholder="Describe your question in detail..."></textarea>
+            <div class="header-left container">
+                <h1>Download PrayasOS</h1>
+                <p>Get started with our ultra-lightweight, fully customized OS—optimized for efficiency like no other!</p>
+                <a href="#download-section" class="primary-button">Download Now</a>
+                <a href="#" class="primary-button">System Requirements</a>
             </div>
-            <button type="submit" class="submit-btn">Post Question</button>
-        </form>
-        <div id="successMessage" class="success-message">
-            Your question has been posted successfully!
         </div>
+    </header>
 
-        <!-- Questions List -->
-        <div class="questions-list" id="questionsList">
-            <!-- Questions will be dynamically added here -->
+    <!-- Download Section -->
+    <section class="download-section">
+        <div class="container">
+            <h2>Available Versions</h2>
+            <div class="download-cards flex">
+                <div class="download-card">
+                    <h3>PrayasOS Lite</h3>
+                    <p>Perfect for older hardware</p>
+                    <ul>
+                        <li>Minimal system requirements</li>
+                        <li>Basic applications included</li>
+                        <li>Lightweight desktop environment</li>
+                    </ul>
+                    <a href="#" class="secondary-button">Download Lite</a>
+                </div>
+                <div class="download-card">
+                    <h3>PrayasOS Standard</h3>
+                    <p>Recommended for most users</p>
+                    <ul>
+                        <li>Balanced performance</li>
+                        <li>Full application suite</li>
+                        <li>Modern desktop environment</li>
+                    </ul>
+                    <a href="#" class="secondary-button">Download Standard</a>
+                </div>
+                <div class="download-card">
+                    <h3>PrayasOS Pro</h3>
+                    <p>For power users</p>
+                    <ul>
+                        <li>Advanced features</li>
+                        <li>Professional tools</li>
+                        <li>Customizable interface</li>
+                    </ul>
+                    <a href="#" class="secondary-button">Download Pro</a>
+                </div>
+            </div>
         </div>
-
-        <!-- Pagination -->
-        <div class="pagination">
-            <button id="prevPage" class="page-btn" disabled>Previous</button>
-            <button id="nextPage" class="page-btn">Next</button>
-        </div>
-    </div>
-
-    
+    </section>
 
     <!-- subfooter -->
-
     <div class="subfooter">
         <div class="container flex subfooter-container">
             <a class="hover-link" href="#">Contacts Team<br></a>
             <a class="hover-link" href="#">Privacy Policy<br></a>
             <a class="hover-link" href="#">Terms & Conditions</a>
             <a class="hover-link" href="#"> PrayasOS © Copyright-2025</a>
-
         </div>
     </div>
-   
+
     <script src="https://kit.fontawesome.com/c1fc3d2826.js" crossorigin="anonymous"></script>
-    <script type="module" src="chat.js"></script>
+    <script type="module" src="homepage.js"></script>
+
     <script>
         const toggleButton = document.getElementById('nav-toggle');
         const navLinks = document.getElementById('nav-links');
-        
 
-        
-
-        
-
-        // Mobile menu toggle
-        toggleButton.addEventListener('click', (e) => {
-            e.stopPropagation();
+        toggleButton.addEventListener('click', () => {
             navLinks.classList.toggle('active');
-        });
-
-        // Close mobile menu when clicking outside
-        document.addEventListener('click', (e) => {
-            if (!navLinks.contains(e.target) && !toggleButton.contains(e.target)) {
-                navLinks.classList.remove('active');
-            }
-        });
-
-        // Close mobile menu when clicking on a link
-        const navItems = navLinks.querySelectorAll('a');
-        navItems.forEach(item => {
-            item.addEventListener('click', () => {
-                navLinks.classList.remove('active');
-            });
         });
     </script>
     <script>
@@ -156,13 +152,11 @@
             root.style.setProperty('--all-white', '#000000');
             root.style.setProperty('--all-black', '#ffffff');
             root.style.setProperty('--popup-bg-color', '#1c86efd5');
-            if (image) image.src = './assets/asset 11.png';
-            if (bigimage) bigimage.src = './assets/asset 11.png';
+            image.src = './assets/asset 11.png';
+            bigimage.src = './assets/asset 11.png';
             document.body.style.backgroundImage = "url('./assets/darkbackground1.png')";
-            if (icon) {
-                icon.classList.remove('fa-moon');
-                icon.classList.add('fa-sun');
-            }
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
         }
 
         function applyLightMode() {
@@ -176,27 +170,24 @@
             root.style.setProperty('--all-white', '#ffffff');
             root.style.setProperty('--all-black', '#000000');
             root.style.setProperty('--popup-bg-color', '#ffffff');
-            if (image) image.src = './assets/asset 1.png';
-            if (bigimage) bigimage.src = './assets/asset 1.png';
+            image.src = './assets/asset 1.png';
+            bigimage.src = './assets/asset 1.png';
             document.body.style.backgroundImage = "url('./assets/background.png')";
-            if (icon) {
-                icon.classList.remove('fa-sun');
-                icon.classList.add('fa-moon');
-            }
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
         }
 
-        if (darkModeToggle) {
-            darkModeToggle.addEventListener('click', () => {
-                isDarkMode = !isDarkMode;
-                localStorage.setItem('darkMode', isDarkMode);
-                
-                if (isDarkMode) {
-                    applyDarkMode();
-                } else {
-                    applyLightMode();
-                }
-            });
-        }
+        darkModeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            if (isDarkMode) {
+                applyDarkMode();
+            } else {
+                applyLightMode();
+            }
+        });
     </script>
 </body>
+
 </html> 
