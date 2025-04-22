@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, limit, startAfter, getDocs, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, limit, startAfter, getDocs, updateDoc, arrayUnion, arrayRemove, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyA8a65KdnY4FzeX_UAC0tapvlE7pwQWWq0",
@@ -702,8 +702,61 @@ async function loadQuestions(searchTerm = '') {
     }
 }
 
-// Handle question submission
-questionForm.addEventListener('submit', async (e) => {
+// Add real-time listener for questions
+function setupQuestionsListener() {
+    const questionsRef = collection(db, "questions");
+    const q = query(questionsRef, orderBy("createdAt", "desc"));
+    
+    onSnapshot(q, (snapshot) => {
+        const changes = snapshot.docChanges();
+        changes.forEach(change => {
+            if (change.type === "added") {
+                // New question added
+                const question = { id: change.doc.id, ...change.doc.data() };
+                addQuestionToUI(question);
+            } else if (change.type === "modified") {
+                // Question updated
+                const question = { id: change.doc.id, ...change.doc.data() };
+                updateQuestionInUI(question);
+            } else if (change.type === "removed") {
+                // Question removed
+                removeQuestionFromUI(change.doc.id);
+            }
+        });
+    }, (error) => {
+        console.error("Error listening to questions:", error);
+        showToast("Error loading questions. Please refresh the page.", "error");
+    });
+}
+
+// Add question to UI
+function addQuestionToUI(question) {
+    const questionElement = createQuestionElement(question);
+    const questionsList = document.getElementById('questionsList');
+    if (questionsList) {
+        questionsList.insertBefore(questionElement, questionsList.firstChild);
+    }
+}
+
+// Update question in UI
+function updateQuestionInUI(question) {
+    const existingQuestion = document.querySelector(`[data-question-id="${question.id}"]`);
+    if (existingQuestion) {
+        const updatedQuestion = createQuestionElement(question);
+        existingQuestion.parentNode.replaceChild(updatedQuestion, existingQuestion);
+    }
+}
+
+// Remove question from UI
+function removeQuestionFromUI(questionId) {
+    const questionElement = document.querySelector(`[data-question-id="${questionId}"]`);
+    if (questionElement) {
+        questionElement.remove();
+    }
+}
+
+// Handle question submission with better error handling
+async function handleQuestionSubmit(e) {
     e.preventDefault();
     
     const title = document.getElementById('questionTitle').value;
@@ -711,15 +764,26 @@ questionForm.addEventListener('submit', async (e) => {
     const userId = localStorage.getItem('loggedInUserId');
 
     if (!userId) {
-        window.location.href = 'index.html';
+        showToast("Please sign in to post a question", "error");
         return;
     }
 
     try {
+        // Show loading state
+        const submitBtn = document.getElementById('submitQuestion');
+        const originalText = submitBtn.innerHTML;
+        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
+        submitBtn.disabled = true;
+
+        // Validate input
+        if (!title.trim() || !description.trim()) {
+            throw new Error("Please fill in all fields");
+        }
+
         // Get user data
         const userDoc = await getDoc(doc(db, "users", userId));
         if (!userDoc.exists()) {
-            throw new Error("User not found");
+            throw new Error("User data not found");
         }
 
         const userData = userDoc.data();
@@ -735,36 +799,61 @@ questionForm.addEventListener('submit', async (e) => {
             status: 'open',
             likes: [],
             dislikes: [],
-            replies: []
+            replies: [],
+            views: 0
         };
 
         // Add question to Firestore
         await addDoc(collection(db, "questions"), questionData);
 
         // Show success message
-        successMessage.textContent = 'Question posted successfully!';
-        successMessage.style.display = 'block';
-        successMessage.style.color = '#3c763d';
-        successMessage.style.backgroundColor = '#dff0d8';
-        setTimeout(() => {
-            successMessage.style.display = 'none';
-        }, 3000);
+        showToast("Question posted successfully!", "success");
 
         // Reset form
-        questionForm.reset();
+        document.getElementById('questionForm').reset();
+        document.getElementById('questionForm').style.display = 'none';
+        document.getElementById('askQuestionBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Ask a Question';
 
-        // Reload questions
-        await loadQuestions();
     } catch (error) {
         console.error("Error posting question:", error);
-        successMessage.textContent = 'Error posting question. Please try again.';
-        successMessage.style.display = 'block';
-        successMessage.style.color = '#a94442';
-        successMessage.style.backgroundColor = '#f2dede';
-        setTimeout(() => {
-            successMessage.style.display = 'none';
-        }, 3000);
+        showToast(error.message || "Error posting question. Please try again.", "error");
+    } finally {
+        // Reset button state
+        const submitBtn = document.getElementById('submitQuestion');
+        submitBtn.innerHTML = originalText;
+        submitBtn.disabled = false;
     }
+}
+
+// Add view count tracking
+function trackQuestionView(questionId) {
+    const questionRef = doc(db, "questions", questionId);
+    updateDoc(questionRef, {
+        views: increment(1)
+    }).catch(error => {
+        console.error("Error updating view count:", error);
+    });
+}
+
+// Initialize chat functionality
+document.addEventListener('DOMContentLoaded', () => {
+    // Set up real-time listener
+    setupQuestionsListener();
+
+    // Add event listeners
+    document.getElementById('questionForm').addEventListener('submit', handleQuestionSubmit);
+    
+    // Track question views when expanded
+    document.addEventListener('click', (e) => {
+        const questionHeader = e.target.closest('.question-header');
+        if (questionHeader) {
+            const questionId = questionHeader.closest('.question-item').dataset.questionId;
+            trackQuestionView(questionId);
+        }
+    });
+
+    // Initialize dark mode
+    initializeDarkMode();
 });
 
 // Toggle question form
