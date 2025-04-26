@@ -21,7 +21,7 @@
             <div class="nav-links" id="nav-links">
                 <ul class="flex">
                     <li><a href="index.html" class="hover-link">Home</a></li>
-                    <li><a href="download.html" class="hover-link">Downloads</a></li>
+                    <li><a href="download.html" class="hover-link active">Downloads</a></li>
                     <li><a href="blog.html" class="hover-link">blog</a></li>
                     <li><a href="chat.html" class="hover-link">Community</a></li>
                     <li><a href="#" class="hover-link">About Us</a></li>
@@ -54,9 +54,9 @@
     <!-- header section -->
     <header>
         <div class="topspace">
-            <div class="header-right hero-image">
+            <!-- <div class="header-right hero-image">
                 <img src="./assets/asset 1.png" alt="hero image" class="hero-image" id="biglogo">
-            </div>
+            </div> -->
             <div class="header-left container">
                 <h1>Download PrayasOS</h1>
                 <p>Get started with our ultra-lightweight, fully customized OS—optimized for efficiency like no other!</p>
@@ -129,7 +129,7 @@
     <script>
         const darkModeToggle = document.getElementById('darkModeToggle');
         const image = document.getElementById('mainlogo');
-        const bigimage = document.getElementById('biglogo');
+        // const bigimage = document.getElementById('biglogo');
         const root = document.documentElement;
         const icon = document.getElementById('darkModeIcon');
 
@@ -153,7 +153,7 @@
             root.style.setProperty('--all-black', '#ffffff');
             root.style.setProperty('--popup-bg-color', '#1c86efd5');
             image.src = './assets/asset 11.png';
-            bigimage.src = './assets/asset 11.png';
+            // bigimage.src = './assets/asset 11.png';
             document.body.style.backgroundImage = "url('./assets/darkbackground1.png')";
             icon.classList.remove('fa-moon');
             icon.classList.add('fa-sun');
@@ -171,7 +171,7 @@
             root.style.setProperty('--all-black', '#000000');
             root.style.setProperty('--popup-bg-color', '#ffffff');
             image.src = './assets/asset 1.png';
-            bigimage.src = './assets/asset 1.png';
+            // bigimage.src = './assets/asset 1.png';
             document.body.style.backgroundImage = "url('./assets/background.png')";
             icon.classList.remove('fa-sun');
             icon.classList.add('fa-moon');

@@ -1,6 +1,6 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-app.js";
 import { getAuth, onAuthStateChanged, signOut } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-auth.js";
-import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, limit, startAfter, getDocs, updateDoc, arrayUnion, arrayRemove, onSnapshot, increment } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
+import { getFirestore, doc, getDoc, collection, addDoc, serverTimestamp, query, orderBy, limit, startAfter, getDocs, updateDoc, arrayUnion, arrayRemove } from "https://www.gstatic.com/firebasejs/10.11.1/firebase-firestore.js";
 
 const firebaseConfig = {
     apiKey: "AIzaSyA8a65KdnY4FzeX_UAC0tapvlE7pwQWWq0",
@@ -8,13 +8,22 @@ const firebaseConfig = {
     projectId: "forum-359a6",
     storageBucket: "forum-359a6.firebasestorage.app",
     messagingSenderId: "558570896770",
-    appId: "1:558570896770:web:4e51c8ea00b551ca91639b"
+    appId: "1:558570896770:web:7b5a2e6b4fc96a0891639b"
 };
 
 // Initialize Firebase
-const app = initializeApp(firebaseConfig);
-const auth = getAuth(app);
-const db = getFirestore(app);
+let app;
+let auth;
+let db;
+
+try {
+    app = initializeApp(firebaseConfig);
+    auth = getAuth(app);
+    db = getFirestore(app);
+    console.log("Firebase initialized successfully");
+} catch (error) {
+    console.error("Error initializing Firebase:", error);
+}
 
 // Constants
 const QUESTIONS_PER_PAGE = 1000;
@@ -31,54 +40,12 @@ const questionsList = document.getElementById('questionsList');
 const prevPageBtn = document.getElementById('prevPage');
 const nextPageBtn = document.getElementById('nextPage');
 const askQuestionBtn = document.getElementById('askQuestionBtn');
-const navLinks = document.getElementById('nav-links');
-const navToggle = document.getElementById('nav-toggle');
-const searchInput = document.getElementById('searchInput');
 
 // Check authentication
-onAuthStateChanged(auth, (user) => {
-    if (!user) {
-        // Store the current page before redirecting
-        sessionStorage.setItem('originalPage', window.location.href);
-        window.location.href = 'signup.html';
-    } else {
-        // User is signed in, load their data
-        const userId = user.uid;
-        localStorage.setItem('loggedInUserId', userId);
-        
-        // Update UI for logged in state
-        const signInUpBtn = document.getElementById('signInUpBtn');
-        const userMenu = document.querySelector('.user-menu');
-        
-        if (signInUpBtn) signInUpBtn.style.display = 'none';
-        if (userMenu) userMenu.style.display = 'block';
-        
-        // Get user data from Firestore
-        const userDoc = doc(db, "users", userId);
-        getDoc(userDoc)
-            .then((docSnap) => {
-                if (docSnap.exists()) {
-                    const userData = docSnap.data();
-                    // Update UI with user data
-                    if (document.getElementById('userEmail')) {
-                        document.getElementById('userEmail').textContent = userData.email;
-                    }
-                    if (document.getElementById('popupFName')) {
-                        document.getElementById('popupFName').textContent = userData.firstName;
-                    }
-                    if (document.getElementById('popupLName')) {
-                        document.getElementById('popupLName').textContent = userData.lastName;
-                    }
-                    if (document.getElementById('popupEmail')) {
-                        document.getElementById('popupEmail').textContent = userData.email;
-                    }
-                }
-            })
-            .catch((error) => {
-                console.error("Error getting user data:", error);
-            });
-    }
-});
+const userId = localStorage.getItem('loggedInUserId');
+if (!userId) {
+    window.location.href = 'signup.html';
+}
 
 // Load questions when the page loads
 document.addEventListener('DOMContentLoaded', async () => {
@@ -88,7 +55,7 @@ document.addEventListener('DOMContentLoaded', async () => {
         }
         await loadQuestions();
     } catch (error) {
-        console.error("Error loading questions:", error);
+        console.error("Error loading questions on page load:", error);
         if (questionsList) {
             questionsList.innerHTML = '<p class="error-message">Error loading questions. Please refresh the page.</p>';
         }
@@ -125,27 +92,6 @@ logoutBtn.addEventListener('click', () => {
         });
 });
 
-// Mobile menu toggle
-navToggle.addEventListener('click', (e) => {
-    e.stopPropagation();
-    navLinks.classList.toggle('active');
-});
-
-// Close mobile menu when clicking outside
-document.addEventListener('click', (e) => {
-    if (!navLinks.contains(e.target) && !navToggle.contains(e.target)) {
-        navLinks.classList.remove('active');
-    }
-});
-
-// Close mobile menu when clicking on a link
-const navItems = navLinks.querySelectorAll('a');
-navItems.forEach(item => {
-    item.addEventListener('click', () => {
-        navLinks.classList.remove('active');
-    });
-});
-
 // Format timestamp
 function formatTimestamp(timestamp) {
     try {
@@ -178,126 +124,20 @@ function formatTimestamp(timestamp) {
     }
 }
 
-// Handle reactions (likes/dislikes) for replies
-async function handleReplyReaction(questionId, replyId, reactionType) {
-    try {
-        const userId = localStorage.getItem('loggedInUserId');
-        if (!userId) {
-            window.location.href = 'signup.html';
-            return;
-        }
-
-        const questionRef = doc(db, "questions", questionId);
-        const questionDoc = await getDoc(questionRef);
-        
-        if (!questionDoc.exists()) {
-            throw new Error("Question not found");
-        }
-
-        const questionData = questionDoc.data();
-        const replies = Array.isArray(questionData.replies) ? questionData.replies : [];
-        
-        // Find the reply
-        const replyIndex = replies.findIndex(r => r.id === replyId);
-        if (replyIndex === -1) {
-            throw new Error("Reply not found");
-        }
-
-        const reply = replies[replyIndex];
-        const currentLikes = Array.isArray(reply.likes) ? reply.likes : [];
-        const currentDislikes = Array.isArray(reply.dislikes) ? reply.dislikes : [];
-
-        let updateData = {};
-        
-        if (reactionType === 'likes') {
-            if (currentLikes.includes(userId)) {
-                // Remove like
-                reply.likes = currentLikes.filter(id => id !== userId);
-            } else {
-                // Add like and remove dislike if exists
-                reply.likes = [...currentLikes, userId];
-                if (currentDislikes.includes(userId)) {
-                    reply.dislikes = currentDislikes.filter(id => id !== userId);
-                }
-            }
-        } else if (reactionType === 'dislikes') {
-            if (currentDislikes.includes(userId)) {
-                // Remove dislike
-                reply.dislikes = currentDislikes.filter(id => id !== userId);
-            } else {
-                // Add dislike and remove like if exists
-                reply.dislikes = [...currentDislikes, userId];
-                if (currentLikes.includes(userId)) {
-                    reply.likes = currentLikes.filter(id => id !== userId);
-                }
-            }
-        }
-
-        // Update the specific reply in the array
-        const updatedReplies = [...replies];
-        updatedReplies[replyIndex] = reply;
-        
-        await updateDoc(questionRef, { replies: updatedReplies });
-
-        // Update UI without collapsing
-        const replyElement = document.querySelector(`[data-reply-id="${replyId}"]`);
-        if (replyElement) {
-            const likeBtn = replyElement.querySelector('.like-btn');
-            const dislikeBtn = replyElement.querySelector('.dislike-btn');
-            const likeCount = replyElement.querySelector('.like-count');
-            const dislikeCount = replyElement.querySelector('.dislike-count');
-
-            // Update counts
-            const newLikes = reactionType === 'likes' ? 
-                (currentLikes.includes(userId) ? currentLikes.length - 1 : currentLikes.length + 1) : 
-                (currentLikes.includes(userId) ? currentLikes.length - 1 : currentLikes.length);
-            
-            const newDislikes = reactionType === 'dislikes' ? 
-                (currentDislikes.includes(userId) ? currentDislikes.length - 1 : currentDislikes.length + 1) : 
-                (currentDislikes.includes(userId) ? currentDislikes.length - 1 : currentDislikes.length);
-
-            likeCount.textContent = newLikes;
-            dislikeCount.textContent = newDislikes;
-
-            // Update button states
-            if (reactionType === 'likes') {
-                likeBtn.classList.toggle('active', !currentLikes.includes(userId));
-                dislikeBtn.classList.remove('active');
-            } else {
-                dislikeBtn.classList.toggle('active', !currentDislikes.includes(userId));
-                likeBtn.classList.remove('active');
-            }
-        }
-    } catch (error) {
-        console.error("Error updating reply reaction:", error);
-    }
-}
-
-// Add event listeners for reply like/dislike buttons
-function addReplyReactionListeners(replyElement, questionId) {
-    const likeBtn = replyElement.querySelector('.like-btn');
-    const dislikeBtn = replyElement.querySelector('.dislike-btn');
-
-    likeBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const replyId = e.currentTarget.dataset.replyId;
-        await handleReplyReaction(questionId, replyId, 'likes');
-    });
-
-    dislikeBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const replyId = e.currentTarget.dataset.replyId;
-        await handleReplyReaction(questionId, replyId, 'dislikes');
-    });
-}
-
-// Update createQuestionElement to add reply reaction listeners
+// Create question element
 function createQuestionElement(question) {
     const questionDiv = document.createElement('div');
     questionDiv.className = 'question-item';
     questionDiv.setAttribute('data-question-id', question.id);
     
     try {
+        // Sort replies by likes count in descending order
+        const sortedReplies = [...(question.replies || [])].sort((a, b) => {
+            const aLikes = a.likes?.length || 0;
+            const bLikes = b.likes?.length || 0;
+            return bLikes - aLikes;
+        });
+
         questionDiv.innerHTML = `
             <div class="question-header">
                 <h3 class="question-title">${question.title}</h3>
@@ -319,99 +159,113 @@ function createQuestionElement(question) {
                         <i class="fas fa-reply"></i> Reply
                     </button>
                 </div>
-                <div class="replies-list" id="replies-list-${question.id}">
-                    ${(question.replies || []).map(reply => `
-                        <div class="reply-item">
-                            <p>${reply.text}</p>
-                            <div class="reply-meta">
-                                <span>${reply.userName} • ${formatTimestamp(reply.createdAt)}</span>
-                                <div class="reply-actions">
-                                    <button class="action-btn like-btn ${reply.likes?.includes(localStorage.getItem('loggedInUserId')) ? 'active' : ''}" data-reply-id="${reply.id}">
-                                        <i class="fas fa-thumbs-up"></i> <span class="like-count">${reply.likes?.length || 0}</span>
-                                    </button>
-                                    <button class="action-btn dislike-btn ${reply.dislikes?.includes(localStorage.getItem('loggedInUserId')) ? 'active' : ''}" data-reply-id="${reply.id}">
-                                        <i class="fas fa-thumbs-down"></i> <span class="dislike-count">${reply.dislikes?.length || 0}</span>
-                                    </button>
-                                </div>
-                            </div>
-                        </div>
-                    `).join('')}
-                </div>
                 <div class="reply-section" id="reply-section-${question.id}">
                     <form class="reply-form" id="reply-form-${question.id}">
                         <textarea class="reply-textarea" placeholder="Write your reply..." required></textarea>
                         <button type="submit" class="submit-btn">Post Reply</button>
                     </form>
+                    <div class="replies-list" id="replies-list-${question.id}">
+                        ${sortedReplies.map(reply => `
+                            <div class="reply-item">
+                                <p>${reply.text}</p>
+                                <div class="reply-meta">
+                                    <span>${reply.userName} • ${formatTimestamp(reply.createdAt)}</span>
+                                    <div class="reply-actions">
+                                        <button class="action-btn like-btn ${reply.likes?.includes(localStorage.getItem('loggedInUserId')) ? 'active' : ''}" data-reply-id="${reply.id}">
+                                            <i class="fas fa-thumbs-up"></i> <span class="like-count">${reply.likes?.length || 0}</span>
+                                        </button>
+                                        <button class="action-btn dislike-btn ${reply.dislikes?.includes(localStorage.getItem('loggedInUserId')) ? 'active' : ''}" data-reply-id="${reply.id}">
+                                            <i class="fas fa-thumbs-down"></i> <span class="dislike-count">${reply.dislikes?.length || 0}</span>
+                                        </button>
+                                    </div>
+                                </div>
+                            </div>
+                        `).join('')}
+                    </div>
                 </div>
             </div>
         `;
-
-        // Add reaction listeners for the question
-        addReactionListeners(questionDiv);
-
-        // Add reaction listeners for each reply
-        const repliesList = questionDiv.querySelector('.replies-list');
-        if (repliesList) {
-            const replyItems = repliesList.querySelectorAll('.reply-item');
-            replyItems.forEach(replyItem => {
-                addReplyReactionListeners(replyItem, question.id);
-            });
-        }
-
-        // Add expand/collapse functionality
-        const questionHeader = questionDiv.querySelector('.question-header');
-        const expandIcon = questionDiv.querySelector('.expand-icon');
-        const questionContent = questionDiv.querySelector('.question-content');
-
-        questionHeader.addEventListener('click', () => {
-            const isExpanded = questionContent.style.display === 'block';
-            
-            // Only collapse if clicking the same question
-            if (expandedQuestionId === question.id) {
-                questionContent.style.display = 'none';
-                expandIcon.textContent = '+';
-                expandedQuestionId = null;
-            } else {
-                // Collapse previously expanded question if any
-                if (expandedQuestionId) {
-                    const prevQuestion = document.querySelector(`[data-question-id="${expandedQuestionId}"]`);
-                    if (prevQuestion) {
-                        const prevContent = prevQuestion.querySelector('.question-content');
-                        const prevIcon = prevQuestion.querySelector('.expand-icon');
-                        prevContent.style.display = 'none';
-                        prevIcon.textContent = '+';
-                    }
-                }
-                
-                // Expand current question
-                questionContent.style.display = 'block';
-                expandIcon.textContent = '-';
-                expandedQuestionId = question.id;
-            }
-        });
-
-        // Add reply button functionality
-        const replyBtn = questionDiv.querySelector('.reply-btn');
-        const replySection = questionDiv.querySelector('.reply-section');
-
-        replyBtn.addEventListener('click', (e) => {
-            e.stopPropagation();
-            replySection.style.display = 'block';
-        });
-
-        // Add reply form submission
-        const replyForm = questionDiv.querySelector('.reply-form');
-        replyForm.addEventListener('submit', async (e) => {
-            e.preventDefault();
-            e.stopPropagation();
-            const replyText = replyForm.querySelector('textarea').value;
-            await handleReply(question.id, replyText);
-        });
-
     } catch (error) {
         console.error('Error creating question element:', error);
         questionDiv.innerHTML = '<p class="error-message">Error displaying question. Please try again.</p>';
     }
+
+    // Add expand/collapse functionality
+    const questionHeader = questionDiv.querySelector('.question-header');
+    const expandIcon = questionDiv.querySelector('.expand-icon');
+    const questionContent = questionDiv.querySelector('.question-content');
+    const replySection = questionDiv.querySelector('.reply-section');
+
+    questionHeader.addEventListener('click', () => {
+        const isExpanded = questionContent.style.display === 'block';
+        
+        // Only collapse if clicking the same question
+        if (expandedQuestionId === question.id) {
+            questionContent.style.display = 'none';
+            replySection.style.display = 'none';
+            expandIcon.textContent = '+';
+            expandedQuestionId = null;
+        } else {
+            // Collapse previously expanded question if any
+            if (expandedQuestionId) {
+                const prevQuestion = document.querySelector(`[data-question-id="${expandedQuestionId}"]`);
+                if (prevQuestion) {
+                    const prevContent = prevQuestion.querySelector('.question-content');
+                    const prevReplySection = prevQuestion.querySelector('.reply-section');
+                    const prevIcon = prevQuestion.querySelector('.expand-icon');
+                    prevContent.style.display = 'none';
+                    prevReplySection.style.display = 'none';
+                    prevIcon.textContent = '+';
+                }
+            }
+            
+            // Expand current question
+            questionContent.style.display = 'block';
+            replySection.style.display = 'block';
+            expandIcon.textContent = '-';
+            expandedQuestionId = question.id;
+        }
+    });
+
+    // Add like/dislike functionality for questions
+    const likeBtn = questionDiv.querySelector('.like-btn');
+    const dislikeBtn = questionDiv.querySelector('.dislike-btn');
+
+    likeBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await handleReaction(question.id, 'likes');
+    });
+
+    dislikeBtn.addEventListener('click', async (e) => {
+        e.stopPropagation();
+        await handleReaction(question.id, 'dislikes');
+    });
+
+    // Add like/dislike functionality for replies
+    questionDiv.querySelectorAll('.reply-item .like-btn, .reply-item .dislike-btn').forEach(btn => {
+        btn.addEventListener('click', async (e) => {
+            e.stopPropagation();
+            const replyId = e.currentTarget.dataset.replyId;
+            const reactionType = e.currentTarget.classList.contains('like-btn') ? 'likes' : 'dislikes';
+            await handleReplyReaction(question.id, replyId, reactionType);
+        });
+    });
+
+    // Add reply functionality
+    const replyBtn = questionDiv.querySelector('.reply-btn');
+    const replyForm = questionDiv.querySelector('.reply-form');
+
+    replyBtn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        replyForm.style.display = replyForm.style.display === 'block' ? 'none' : 'block';
+    });
+
+    replyForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        const replyText = replyForm.querySelector('textarea').value;
+        await handleReply(question.id, replyText);
+    });
 
     return questionDiv;
 }
@@ -427,44 +281,30 @@ async function handleReaction(questionId, reactionType) {
 
         const questionRef = doc(db, "questions", questionId);
         const questionDoc = await getDoc(questionRef);
-        
-        if (!questionDoc.exists()) {
-            throw new Error("Question not found");
-        }
-
         const questionData = questionDoc.data();
-        const currentLikes = Array.isArray(questionData.likes) ? questionData.likes : [];
-        const currentDislikes = Array.isArray(questionData.dislikes) ? questionData.dislikes : [];
+        
+        // Check if user has already reacted
+        const hasReacted = questionData[reactionType]?.includes(userId);
+        const oppositeReaction = reactionType === 'likes' ? 'dislikes' : 'likes';
+        const hasOppositeReaction = questionData[oppositeReaction]?.includes(userId);
 
         let updateData = {};
         
-        if (reactionType === 'likes') {
-            if (currentLikes.includes(userId)) {
-                // Remove like
-                updateData.likes = arrayRemove(userId);
-            } else {
-                // Add like and remove dislike if exists
-                updateData.likes = arrayUnion(userId);
-                if (currentDislikes.includes(userId)) {
-                    updateData.dislikes = arrayRemove(userId);
-                }
-            }
-        } else if (reactionType === 'dislikes') {
-            if (currentDislikes.includes(userId)) {
-                // Remove dislike
-                updateData.dislikes = arrayRemove(userId);
-            } else {
-                // Add dislike and remove like if exists
-                updateData.dislikes = arrayUnion(userId);
-                if (currentLikes.includes(userId)) {
-                    updateData.likes = arrayRemove(userId);
-                }
+        if (hasReacted) {
+            // Remove reaction
+            updateData[reactionType] = arrayRemove(userId);
+        } else {
+            // Add reaction
+            updateData[reactionType] = arrayUnion(userId);
+            // Remove opposite reaction if exists
+            if (hasOppositeReaction) {
+                updateData[oppositeReaction] = arrayRemove(userId);
             }
         }
 
         await updateDoc(questionRef, updateData);
-
-        // Update UI without collapsing
+        
+        // Update the UI without collapsing
         const questionElement = document.querySelector(`[data-question-id="${questionId}"]`);
         if (questionElement) {
             const likeBtn = questionElement.querySelector('.like-btn');
@@ -474,22 +314,21 @@ async function handleReaction(questionId, reactionType) {
 
             // Update counts
             const newLikes = reactionType === 'likes' ? 
-                (currentLikes.includes(userId) ? currentLikes.length - 1 : currentLikes.length + 1) : 
-                (currentLikes.includes(userId) ? currentLikes.length - 1 : currentLikes.length);
-            
+                (hasReacted ? questionData.likes.length - 1 : questionData.likes.length + 1) : 
+                questionData.likes.length;
             const newDislikes = reactionType === 'dislikes' ? 
-                (currentDislikes.includes(userId) ? currentDislikes.length - 1 : currentDislikes.length + 1) : 
-                (currentDislikes.includes(userId) ? currentDislikes.length - 1 : currentDislikes.length);
+                (hasReacted ? questionData.dislikes.length - 1 : questionData.dislikes.length + 1) : 
+                questionData.dislikes.length;
 
             likeCount.textContent = newLikes;
             dislikeCount.textContent = newDislikes;
 
             // Update button states
             if (reactionType === 'likes') {
-                likeBtn.classList.toggle('active', !currentLikes.includes(userId));
+                likeBtn.classList.toggle('active', !hasReacted);
                 dislikeBtn.classList.remove('active');
             } else {
-                dislikeBtn.classList.toggle('active', !currentDislikes.includes(userId));
+                dislikeBtn.classList.toggle('active', !hasReacted);
                 likeBtn.classList.remove('active');
             }
         }
@@ -498,22 +337,79 @@ async function handleReaction(questionId, reactionType) {
     }
 }
 
-// Add event listeners for like/dislike buttons
-function addReactionListeners(questionElement) {
-    const likeBtn = questionElement.querySelector('.like-btn');
-    const dislikeBtn = questionElement.querySelector('.dislike-btn');
+// Handle reactions (likes/dislikes) for replies
+async function handleReplyReaction(questionId, replyId, reactionType) {
+    try {
+        const userId = localStorage.getItem('loggedInUserId');
+        if (!userId) {
+            window.location.href = 'signup.html';
+            return;
+        }
 
-    likeBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const questionId = e.currentTarget.dataset.questionId;
-        await handleReaction(questionId, 'likes');
-    });
+        const questionRef = doc(db, "questions", questionId);
+        const questionDoc = await getDoc(questionRef);
+        const questionData = questionDoc.data();
+        
+        // Find the reply
+        const replyIndex = questionData.replies.findIndex(r => r.id === replyId);
+        if (replyIndex === -1) return;
 
-    dislikeBtn.addEventListener('click', async (e) => {
-        e.stopPropagation();
-        const questionId = e.currentTarget.dataset.questionId;
-        await handleReaction(questionId, 'dislikes');
-    });
+        const reply = questionData.replies[replyIndex];
+        const hasReacted = reply[reactionType]?.includes(userId);
+        const oppositeReaction = reactionType === 'likes' ? 'dislikes' : 'likes';
+        const hasOppositeReaction = reply[oppositeReaction]?.includes(userId);
+
+        // Update the reply object
+        if (hasReacted) {
+            // Remove reaction
+            reply[reactionType] = reply[reactionType].filter(id => id !== userId);
+        } else {
+            // Add reaction
+            reply[reactionType] = [...(reply[reactionType] || []), userId];
+            // Remove opposite reaction if exists
+            if (hasOppositeReaction) {
+                reply[oppositeReaction] = reply[oppositeReaction].filter(id => id !== userId);
+            }
+        }
+
+        // Update the specific reply in the array
+        const updatedReplies = [...questionData.replies];
+        updatedReplies[replyIndex] = reply;
+        
+        // Update the document
+        await updateDoc(questionRef, { replies: updatedReplies });
+        
+        // Update the UI
+        const replyElement = document.querySelector(`[data-reply-id="${replyId}"]`);
+        if (replyElement) {
+            const likeBtn = replyElement.querySelector('.like-btn');
+            const dislikeBtn = replyElement.querySelector('.dislike-btn');
+            const likeCount = replyElement.querySelector('.like-count');
+            const dislikeCount = replyElement.querySelector('.dislike-count');
+
+            // Update counts
+            const newLikes = reactionType === 'likes' ? 
+                (hasReacted ? reply.likes.length - 1 : reply.likes.length + 1) : 
+                reply.likes.length;
+            const newDislikes = reactionType === 'dislikes' ? 
+                (hasReacted ? reply.dislikes.length - 1 : reply.dislikes.length + 1) : 
+                reply.dislikes.length;
+
+            likeCount.textContent = newLikes;
+            dislikeCount.textContent = newDislikes;
+
+            // Update button states
+            if (reactionType === 'likes') {
+                likeBtn.classList.toggle('active', !hasReacted);
+                dislikeBtn.classList.remove('active');
+            } else {
+                dislikeBtn.classList.toggle('active', !hasReacted);
+                likeBtn.classList.remove('active');
+            }
+        }
+    } catch (error) {
+        console.error("Error updating reply reaction:", error);
+    }
 }
 
 // Handle reply submission
@@ -565,6 +461,7 @@ async function handleReply(questionId, replyText) {
         });
 
         // Show success message
+        const successMessage = document.getElementById('successMessage');
         successMessage.textContent = 'Reply posted successfully!';
         successMessage.style.display = 'block';
         successMessage.style.color = '#3c763d';
@@ -579,27 +476,23 @@ async function handleReply(questionId, replyText) {
             replyForm.querySelector('textarea').value = '';
         }
 
-        // Store the expanded question ID before refreshing
-        const currentExpandedId = expandedQuestionId;
-        
         // Refresh the questions list
         await loadQuestions();
         
         // Re-expand the question to show the new reply
-        if (currentExpandedId) {
-            const updatedQuestion = document.querySelector(`[data-question-id="${currentExpandedId}"]`);
-            if (updatedQuestion) {
-                const updatedContent = updatedQuestion.querySelector('.question-content');
-                const updatedIcon = updatedQuestion.querySelector('.expand-icon');
-                if (updatedContent && updatedIcon) {
-                    updatedContent.style.display = 'block';
-                    updatedIcon.textContent = '-';
-                    expandedQuestionId = currentExpandedId;
-                }
+        const updatedQuestion = document.querySelector(`[data-question-id="${questionId}"]`);
+        if (updatedQuestion) {
+            const updatedContent = updatedQuestion.querySelector('.question-content');
+            const updatedIcon = updatedQuestion.querySelector('.expand-icon');
+            if (updatedContent && updatedIcon) {
+                updatedContent.style.display = 'block';
+                updatedIcon.textContent = '-';
+                expandedQuestionId = questionId;
             }
         }
     } catch (error) {
         console.error("Error posting reply:", error);
+        const successMessage = document.getElementById('successMessage');
         successMessage.textContent = `Error posting reply: ${error.message}. Please try again.`;
         successMessage.style.display = 'block';
         successMessage.style.color = '#a94442';
@@ -670,9 +563,6 @@ async function loadQuestions(searchTerm = '') {
             return;
         }
 
-        // Sort questions by creation date (newest first)
-        questions.sort((a, b) => b.createdAt - a.createdAt);
-
         // Display all questions
         questions.forEach(question => {
             const questionElement = createQuestionElement(question);
@@ -702,61 +592,8 @@ async function loadQuestions(searchTerm = '') {
     }
 }
 
-// Add real-time listener for questions
-function setupQuestionsListener() {
-    const questionsRef = collection(db, "questions");
-    const q = query(questionsRef, orderBy("createdAt", "desc"));
-    
-    onSnapshot(q, (snapshot) => {
-        const changes = snapshot.docChanges();
-        changes.forEach(change => {
-            if (change.type === "added") {
-                // New question added
-                const question = { id: change.doc.id, ...change.doc.data() };
-                addQuestionToUI(question);
-            } else if (change.type === "modified") {
-                // Question updated
-                const question = { id: change.doc.id, ...change.doc.data() };
-                updateQuestionInUI(question);
-            } else if (change.type === "removed") {
-                // Question removed
-                removeQuestionFromUI(change.doc.id);
-            }
-        });
-    }, (error) => {
-        console.error("Error listening to questions:", error);
-        showToast("Error loading questions. Please refresh the page.", "error");
-    });
-}
-
-// Add question to UI
-function addQuestionToUI(question) {
-    const questionElement = createQuestionElement(question);
-    const questionsList = document.getElementById('questionsList');
-    if (questionsList) {
-        questionsList.insertBefore(questionElement, questionsList.firstChild);
-    }
-}
-
-// Update question in UI
-function updateQuestionInUI(question) {
-    const existingQuestion = document.querySelector(`[data-question-id="${question.id}"]`);
-    if (existingQuestion) {
-        const updatedQuestion = createQuestionElement(question);
-        existingQuestion.parentNode.replaceChild(updatedQuestion, existingQuestion);
-    }
-}
-
-// Remove question from UI
-function removeQuestionFromUI(questionId) {
-    const questionElement = document.querySelector(`[data-question-id="${questionId}"]`);
-    if (questionElement) {
-        questionElement.remove();
-    }
-}
-
-// Handle question submission with better error handling
-async function handleQuestionSubmit(e) {
+// Handle question submission
+questionForm.addEventListener('submit', async (e) => {
     e.preventDefault();
     
     const title = document.getElementById('questionTitle').value;
@@ -764,26 +601,14 @@ async function handleQuestionSubmit(e) {
     const userId = localStorage.getItem('loggedInUserId');
 
     if (!userId) {
-        showToast("Please sign in to post a question", "error");
+        window.location.href = 'index.html';
         return;
     }
 
     try {
-        // Show loading state
-        const submitBtn = document.getElementById('submitQuestion');
-        const originalText = submitBtn.innerHTML;
-        submitBtn.innerHTML = '<i class="fas fa-spinner fa-spin"></i> Posting...';
-        submitBtn.disabled = true;
-
-        // Validate input
-        if (!title.trim() || !description.trim()) {
-            throw new Error("Please fill in all fields");
-        }
-
-        // Get user data
         const userDoc = await getDoc(doc(db, "users", userId));
         if (!userDoc.exists()) {
-            throw new Error("User data not found");
+            throw new Error("User not found");
         }
 
         const userData = userDoc.data();
@@ -799,61 +624,35 @@ async function handleQuestionSubmit(e) {
             status: 'open',
             likes: [],
             dislikes: [],
-            replies: [],
-            views: 0
+            replies: []
         };
 
-        // Add question to Firestore
         await addDoc(collection(db, "questions"), questionData);
 
         // Show success message
-        showToast("Question posted successfully!", "success");
+        successMessage.textContent = 'Question posted successfully!';
+        successMessage.style.display = 'block';
+        successMessage.style.color = '#3c763d';
+        successMessage.style.backgroundColor = '#dff0d8';
+        setTimeout(() => {
+            successMessage.style.display = 'none';
+        }, 3000);
 
         // Reset form
-        document.getElementById('questionForm').reset();
-        document.getElementById('questionForm').style.display = 'none';
-        document.getElementById('askQuestionBtn').innerHTML = '<i class="fa-solid fa-plus"></i> Ask a Question';
+        questionForm.reset();
 
+        // Reload questions
+        await loadQuestions();
     } catch (error) {
         console.error("Error posting question:", error);
-        showToast(error.message || "Error posting question. Please try again.", "error");
-    } finally {
-        // Reset button state
-        const submitBtn = document.getElementById('submitQuestion');
-        submitBtn.innerHTML = originalText;
-        submitBtn.disabled = false;
+        successMessage.textContent = 'Error posting question. Please try again.';
+        successMessage.style.display = 'block';
+        successMessage.style.color = '#a94442';
+        successMessage.style.backgroundColor = '#f2dede';
+        setTimeout(() => {
+            successMessage.style.display = 'none';
+        }, 3000);
     }
-}
-
-// Add view count tracking
-function trackQuestionView(questionId) {
-    const questionRef = doc(db, "questions", questionId);
-    updateDoc(questionRef, {
-        views: increment(1)
-    }).catch(error => {
-        console.error("Error updating view count:", error);
-    });
-}
-
-// Initialize chat functionality
-document.addEventListener('DOMContentLoaded', () => {
-    // Set up real-time listener
-    setupQuestionsListener();
-
-    // Add event listeners
-    document.getElementById('questionForm').addEventListener('submit', handleQuestionSubmit);
-    
-    // Track question views when expanded
-    document.addEventListener('click', (e) => {
-        const questionHeader = e.target.closest('.question-header');
-        if (questionHeader) {
-            const questionId = questionHeader.closest('.question-item').dataset.questionId;
-            trackQuestionView(questionId);
-        }
-    });
-
-    // Initialize dark mode
-    initializeDarkMode();
 });
 
 // Toggle question form
@@ -865,7 +664,51 @@ askQuestionBtn.addEventListener('click', () => {
         '<i class="fa-solid fa-minus"></i> Cancel';
 });
 
+// Check authentication state and load questions
+onAuthStateChanged(auth, (user) => {
+    const loggedInUserId = localStorage.getItem('loggedInUserId');
+    if (loggedInUserId) {
+        const docRef = doc(db, "users", loggedInUserId);
+        getDoc(docRef)
+            .then((docSnap) => {
+                if (docSnap.exists()) {
+                    const userData = docSnap.data();
+                    document.getElementById('loggedUserEmail').innerText = userData.email;
+                    document.getElementById('popupFName').innerText = userData.firstName;
+                    document.getElementById('popupLName').innerText = userData.lastName;
+                    document.getElementById('popupEmail').innerText = userData.email;
+                    loadQuestions();
+                } else {
+                    console.log("No document found matching id");
+                    window.location.href = 'index.html';
+                }
+            })
+            .catch((error) => {
+                console.log("Error getting document:", error);
+                window.location.href = 'index.html';
+            });
+    } else {
+        console.log("User ID not found in Local storage");
+        window.location.href = 'index.html';
+    }
+});
+
 // Add search functionality
+const searchInput = document.createElement('input');
+searchInput.type = 'text';
+searchInput.placeholder = 'Search questions...';
+searchInput.className = 'search-input';
+searchInput.style.marginBottom = '20px';
+searchInput.style.padding = '10px';
+searchInput.style.width = '100%';
+searchInput.style.border = '1px solid #ddd';
+searchInput.style.borderRadius = '5px';
+
+// Insert search input before questions list
+const chatContainer = document.querySelector('.chat-container');
+chatContainer.insertBefore(searchInput, questionsList);
+
+// Add search event listener
 searchInput.addEventListener('input', (e) => {
     currentPage = 1; // Reset to first page when searching
     loadQuestions(e.target.value);
@@ -925,74 +768,4 @@ style.textContent = `
         color: #a94442;
     }
 `;
-document.head.appendChild(style);
-
-// Initialize dark mode
-document.addEventListener('DOMContentLoaded', () => {
-    const darkModeToggle = document.getElementById('darkModeToggle');
-    const image = document.getElementById('mainlogo');
-    const bigimage = document.getElementById('biglogo');
-    const root = document.documentElement;
-    const icon = document.getElementById('darkModeIcon');
-
-    // Check localStorage for dark mode state
-    let isDarkMode = localStorage.getItem('darkMode') === 'true';
-
-    // Apply initial state
-    if (isDarkMode) {
-        applyDarkMode();
-    }
-
-    function applyDarkMode() {
-        root.style.setProperty('--primary-text-color', '#d3e0ea');
-        root.style.setProperty('--secondary-text-color', '#b0b8c1');
-        root.style.setProperty('--accent-color', '#66ffcc');
-        root.style.setProperty('--accent-color-dark', '#33bbee');
-        root.style.setProperty('--nav-bg-color', 'rgba(17, 17, 27, 0.95)');
-        root.style.setProperty('--nav-text-color', '#d9bfff');
-        root.style.setProperty('--nav-hover-color', '#e0c2ff');
-        root.style.setProperty('--all-white', '#000000');
-        root.style.setProperty('--all-black', '#ffffff');
-        root.style.setProperty('--popup-bg-color', '#1c86efd5');
-        root.style.setProperty('--body-bg-image', "url('./assets/darkbackground1.png')");
-        if (image) image.src = './assets/asset 11.png';
-        if (bigimage) bigimage.src = './assets/asset 11.png';
-        if (icon) {
-            icon.classList.remove('fa-moon');
-            icon.classList.add('fa-sun');
-        }
-    }
-
-    function applyLightMode() {
-        root.style.setProperty('--primary-text-color', '#183b56');
-        root.style.setProperty('--secondary-text-color', '#2f3030');
-        root.style.setProperty('--accent-color', '#10A37F');
-        root.style.setProperty('--accent-color-dark', '#0673b7');
-        root.style.setProperty('--nav-bg-color', 'rgba(24, 24, 37, 0.8)');
-        root.style.setProperty('--nav-text-color', 'rgb(55, 0, 122)');
-        root.style.setProperty('--nav-hover-color', '#a78bfa');
-        root.style.setProperty('--all-white', '#ffffff');
-        root.style.setProperty('--all-black', '#000000');
-        root.style.setProperty('--popup-bg-color', '#ffffff');
-        root.style.setProperty('--body-bg-image', "url('./assets/background.png')");
-        if (image) image.src = './assets/asset 1.png';
-        if (bigimage) bigimage.src = './assets/asset 1.png';
-        if (icon) {
-            icon.classList.remove('fa-sun');
-            icon.classList.add('fa-moon');
-        }
-    }
-
-    if (darkModeToggle) {
-        darkModeToggle.addEventListener('click', () => {
-            isDarkMode = !isDarkMode;
-            localStorage.setItem('darkMode', isDarkMode);
-            
-            if (isDarkMode) {
-                applyDarkMode();
-            } else {
-                applyLightMode();
-            }
-        });
-    }
-}); 
+document.head.appendChild(style); 
