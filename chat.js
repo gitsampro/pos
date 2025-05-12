@@ -281,12 +281,22 @@ async function handleReaction(questionId, reactionType) {
 
         const questionRef = doc(db, "questions", questionId);
         const questionDoc = await getDoc(questionRef);
+        
+        if (!questionDoc.exists()) {
+            console.error("Question not found");
+            return;
+        }
+
         const questionData = questionDoc.data();
         
+        // Initialize arrays if they don't exist
+        if (!Array.isArray(questionData.likes)) questionData.likes = [];
+        if (!Array.isArray(questionData.dislikes)) questionData.dislikes = [];
+        
         // Check if user has already reacted
-        const hasReacted = questionData[reactionType]?.includes(userId);
+        const hasReacted = questionData[reactionType].includes(userId);
         const oppositeReaction = reactionType === 'likes' ? 'dislikes' : 'likes';
-        const hasOppositeReaction = questionData[oppositeReaction]?.includes(userId);
+        const hasOppositeReaction = questionData[oppositeReaction].includes(userId);
 
         let updateData = {};
         
@@ -312,24 +322,26 @@ async function handleReaction(questionId, reactionType) {
             const likeCount = questionElement.querySelector('.like-count');
             const dislikeCount = questionElement.querySelector('.dislike-count');
 
-            // Update counts
-            const newLikes = reactionType === 'likes' ? 
-                (hasReacted ? questionData.likes.length - 1 : questionData.likes.length + 1) : 
-                questionData.likes.length;
-            const newDislikes = reactionType === 'dislikes' ? 
-                (hasReacted ? questionData.dislikes.length - 1 : questionData.dislikes.length + 1) : 
-                questionData.dislikes.length;
+            if (likeBtn && dislikeBtn && likeCount && dislikeCount) {
+                // Update counts
+                const newLikes = reactionType === 'likes' ? 
+                    (hasReacted ? questionData.likes.length - 1 : questionData.likes.length + 1) : 
+                    questionData.likes.length;
+                const newDislikes = reactionType === 'dislikes' ? 
+                    (hasReacted ? questionData.dislikes.length - 1 : questionData.dislikes.length + 1) : 
+                    questionData.dislikes.length;
 
-            likeCount.textContent = newLikes;
-            dislikeCount.textContent = newDislikes;
+                likeCount.textContent = newLikes;
+                dislikeCount.textContent = newDislikes;
 
-            // Update button states
-            if (reactionType === 'likes') {
-                likeBtn.classList.toggle('active', !hasReacted);
-                dislikeBtn.classList.remove('active');
-            } else {
-                dislikeBtn.classList.toggle('active', !hasReacted);
-                likeBtn.classList.remove('active');
+                // Update button states
+                if (reactionType === 'likes') {
+                    likeBtn.classList.toggle('active', !hasReacted);
+                    dislikeBtn.classList.remove('active');
+                } else {
+                    dislikeBtn.classList.toggle('active', !hasReacted);
+                    likeBtn.classList.remove('active');
+                }
             }
         }
     } catch (error) {
@@ -348,16 +360,30 @@ async function handleReplyReaction(questionId, replyId, reactionType) {
 
         const questionRef = doc(db, "questions", questionId);
         const questionDoc = await getDoc(questionRef);
+        
+        if (!questionDoc.exists()) {
+            console.error("Question not found");
+            return;
+        }
+
         const questionData = questionDoc.data();
         
         // Find the reply
         const replyIndex = questionData.replies.findIndex(r => r.id === replyId);
-        if (replyIndex === -1) return;
+        if (replyIndex === -1) {
+            console.error("Reply not found");
+            return;
+        }
 
         const reply = questionData.replies[replyIndex];
-        const hasReacted = reply[reactionType]?.includes(userId);
+        
+        // Initialize arrays if they don't exist
+        if (!Array.isArray(reply.likes)) reply.likes = [];
+        if (!Array.isArray(reply.dislikes)) reply.dislikes = [];
+        
+        const hasReacted = reply[reactionType].includes(userId);
         const oppositeReaction = reactionType === 'likes' ? 'dislikes' : 'likes';
-        const hasOppositeReaction = reply[oppositeReaction]?.includes(userId);
+        const hasOppositeReaction = reply[oppositeReaction].includes(userId);
 
         // Update the reply object
         if (hasReacted) {
@@ -365,7 +391,7 @@ async function handleReplyReaction(questionId, replyId, reactionType) {
             reply[reactionType] = reply[reactionType].filter(id => id !== userId);
         } else {
             // Add reaction
-            reply[reactionType] = [...(reply[reactionType] || []), userId];
+            reply[reactionType] = [...reply[reactionType], userId];
             // Remove opposite reaction if exists
             if (hasOppositeReaction) {
                 reply[oppositeReaction] = reply[oppositeReaction].filter(id => id !== userId);
@@ -387,24 +413,26 @@ async function handleReplyReaction(questionId, replyId, reactionType) {
             const likeCount = replyElement.querySelector('.like-count');
             const dislikeCount = replyElement.querySelector('.dislike-count');
 
-            // Update counts
-            const newLikes = reactionType === 'likes' ? 
-                (hasReacted ? reply.likes.length - 1 : reply.likes.length + 1) : 
-                reply.likes.length;
-            const newDislikes = reactionType === 'dislikes' ? 
-                (hasReacted ? reply.dislikes.length - 1 : reply.dislikes.length + 1) : 
-                reply.dislikes.length;
+            if (likeBtn && dislikeBtn && likeCount && dislikeCount) {
+                // Update counts
+                const newLikes = reactionType === 'likes' ? 
+                    (hasReacted ? reply.likes.length - 1 : reply.likes.length + 1) : 
+                    reply.likes.length;
+                const newDislikes = reactionType === 'dislikes' ? 
+                    (hasReacted ? reply.dislikes.length - 1 : reply.dislikes.length + 1) : 
+                    reply.dislikes.length;
 
-            likeCount.textContent = newLikes;
-            dislikeCount.textContent = newDislikes;
+                likeCount.textContent = newLikes;
+                dislikeCount.textContent = newDislikes;
 
-            // Update button states
-            if (reactionType === 'likes') {
-                likeBtn.classList.toggle('active', !hasReacted);
-                dislikeBtn.classList.remove('active');
-            } else {
-                dislikeBtn.classList.toggle('active', !hasReacted);
-                likeBtn.classList.remove('active');
+                // Update button states
+                if (reactionType === 'likes') {
+                    likeBtn.classList.toggle('active', !hasReacted);
+                    dislikeBtn.classList.remove('active');
+                } else {
+                    dislikeBtn.classList.toggle('active', !hasReacted);
+                    likeBtn.classList.remove('active');
+                }
             }
         }
     } catch (error) {
@@ -694,24 +722,41 @@ onAuthStateChanged(auth, (user) => {
 });
 
 // Add search functionality
+const searchContainer = document.createElement('div');
+searchContainer.className = 'search-container';
+
+const searchButton = document.createElement('button');
+searchButton.className = 'search-button';
+searchButton.innerHTML = '<i class="fas fa-search"></i><span>Search a Question</span>';
+
 const searchInput = document.createElement('input');
 searchInput.type = 'text';
 searchInput.placeholder = 'Search questions...';
 searchInput.className = 'search-input';
-searchInput.style.marginBottom = '20px';
-searchInput.style.padding = '10px';
-searchInput.style.width = '100%';
-searchInput.style.border = '1px solid #ddd';
-searchInput.style.borderRadius = '5px';
 
-// Insert search input before questions list
-const chatContainer = document.querySelector('.chat-container');
-chatContainer.insertBefore(searchInput, questionsList);
+searchContainer.appendChild(searchButton);
+searchContainer.appendChild(searchInput);
+document.body.insertBefore(searchContainer, document.querySelector('.chat-container'));
+
+// Toggle search input on button click
+searchButton.addEventListener('click', () => {
+    searchContainer.classList.toggle('active');
+    if (searchContainer.classList.contains('active')) {
+        searchInput.focus();
+    }
+});
 
 // Add search event listener
 searchInput.addEventListener('input', (e) => {
     currentPage = 1; // Reset to first page when searching
     loadQuestions(e.target.value);
+});
+
+// Close search when clicking outside
+document.addEventListener('click', (e) => {
+    if (!searchContainer.contains(e.target)) {
+        searchContainer.classList.remove('active');
+    }
 });
 
 // Add this after the pagination buttons event listeners
@@ -763,9 +808,56 @@ style.textContent = `
         padding: 20px;
         color: #666;
         font-size: 1.1em;
+        
+        border-radius: 8px;
+        margin: 20px 0;
     }
     .error-message {
         color: #a94442;
+        background-color: #f8d7da;
+        border: 1px solid #f5c6cb;
+    }
+    .question-title {
+        color: rgb(2, 5, 8);
+        font-weight: 600;
+        margin: 0;
+        padding: 10px 0;
+        font-size: 1.2em;
+    }
+    .submit-btn {
+        display: block;
+        margin: 10px auto;
+        padding: 8px 20px;
+        background-color: #007bff;
+        color: white;
+        border: none;
+        border-radius: 4px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+    }
+    .submit-btn:hover {
+        background-color: #0056b3;
+    }
+    .question-content {
+        display: none;
+        padding: 15px;
+        border-top: 1px solid #eee;
+    }
+    .reply-section {
+        display: none;
+        margin-top: 15px;
+    }
+    .reply-form {
+        margin-bottom: 15px;
+    }
+    .reply-textarea {
+        width: 100%;
+        min-height: 80px;
+        padding: 10px;
+        margin-bottom: 10px;
+        border: 1px solid #ddd;
+        border-radius: 4px;
+        resize: vertical;
     }
 `;
 document.head.appendChild(style); 

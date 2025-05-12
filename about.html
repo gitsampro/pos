@@ -1,0 +1,332 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Downloads - PrayasOS</title>
+    <link rel="icon" type="image/png" href="./assets/favicon.png">
+    <link rel="stylesheet" href="style.css">
+    <link rel="stylesheet" href="media-queries.css">
+    <link href="https://unpkg.com/aos@2.3.1/dist/aos.css" rel="stylesheet">
+</head>
+
+<body>
+    <!-- nav bar -->
+    <nav class="nav-with-banner">
+        <div class="container main-nav flex">
+            <a href="#" class="company-logo">
+                <img src="./assets/asset 1.png" alt="company logo" id="mainlogo" class="hero-image">
+            </a>
+            <div class="nav-links" id="nav-links">
+                <ul class="flex">
+                    <li><a href="index.html" class="hover-link">Home</a></li>
+                    <li><a href="download.html" class="hover-link active">Downloads</a></li>
+                    <li><a href="blog.html" class="hover-link">blog</a></li>
+                    <li><a href="chat.html" class="hover-link">Community</a></li>
+                    <li><a href="about.html" class="hover-link">About Us</a></li>
+                </ul>
+            </div>
+            <div class="auth-section">
+                <a href="signup.html" class="sign-in-button" id="signInUpBtn">Sign in/Sign Up</a>
+                <div class="user-menu" style="display: none;">
+                    <a href="#" class="user-email short-button sign-in-button" id="userEmail"></a>
+                    <div class="user-popup" id="userPopup">
+                        <div class="popup-content">
+                            <div class="user-details">
+                                <p>Name: <span id="popupFName"></span> <span id="popupLName"></span></p>
+                                <p>Email: <span id="popupEmail"></span></p>
+                            </div>
+                            <button id="logoutBtn" class="logout-button">Logout</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+            <a href="#" class="nav-toggle hover-link" id="nav-toggle">
+                <i class="fa-solid fa-bars"></i>
+            </a>
+            <button id="darkModeToggle" class="#">
+                <i class="fa-solid fa-moon" id="darkModeIcon"></i>
+            </button>
+        </div>
+    </nav>
+
+    <!-- header section -->
+    <header>
+        <div class="topspace">
+            <div class="container">
+                <div class="about-section">
+                    <div class="about-logo-container">
+                        <img src="./assets/asset 1.png" alt="PrayasOS Logo" class="about-logo" id="biglogo">
+                        <div class="logo-glow"></div>
+                    </div>
+                    <div class="about-content">
+                        <h1>About PrayasOS</h1>
+                        <p>PrayasOS is a community-driven operating system project focused on creating a lightweight, efficient, and user-friendly Linux distribution. Our team of passionate developers and contributors work together to build an OS that combines performance with simplicity.</p>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </header>
+
+    <!-- Mission Section -->
+    <!-- <section class="mission-section" data-aos="fade-up">
+        <div class="container">
+            <div class="mission-content">
+                <div class="mission-text">
+                    <h2>Our Mission</h2>
+                    <p>To create an operating system that empowers users with freedom, privacy, and performance. We believe in making technology accessible to everyone while maintaining the highest standards of security and efficiency.</p>
+                </div>
+                <div class="mission-image">
+                    <img src="./assets/mission.png" alt="Our Mission">
+                </div>
+            </div>
+        </div>
+    </section> -->
+
+    <!-- Values Section -->
+    <section class="values-section" data-aos="fade-up">
+        <div class="container">
+            <h2 class="section-title">Our Core Values</h2>
+            <div class="values-grid">
+                <div class="value-card" data-aos="fade-up" data-aos-delay="100">
+                    <i class="fas fa-lock"></i>
+                    <h3>Security First</h3>
+                    <p>We prioritize user security and privacy in every aspect of our development process.</p>
+                </div>
+                <div class="value-card" data-aos="fade-up" data-aos-delay="200">
+                    <i class="fas fa-users"></i>
+                    <h3>Community Driven</h3>
+                    <p>Our success is built on the strength and diversity of our global community.</p>
+                </div>
+                <div class="value-card" data-aos="fade-up" data-aos-delay="300">
+                    <i class="fas fa-code"></i>
+                    <h3>Open Source</h3>
+                    <p>We believe in the power of open source and collaborative development.</p>
+                </div>
+                <div class="value-card" data-aos="fade-up" data-aos-delay="400">
+                    <i class="fas fa-rocket"></i>
+                    <h3>Innovation</h3>
+                    <p>We constantly push boundaries to deliver cutting-edge technology solutions.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Team Section -->
+    <section class="team-section">
+        <div class="container">
+            <h2 class="section-title">Our Team</h2>
+            <div class="team-cards flex">
+                <div class="team-card" data-aos="fade-up">
+                    <div class="team-image-container">
+                        <img src="./assets/team/pushpendra.jpg" alt="Pushpendra" class="team-image">
+                    </div>
+                    <h3>Pushpendra</h3>
+                    <p class="team-role">Member 1</p>
+                    <p class="team-bio">Leading the PrayasOS project with expertise in system architecture and team coordination.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon github"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon linkedin"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="team-image-container">
+                        <img src="./assets/team/prashant.png" alt="Prashant" class="team-image">
+                    </div>
+                    <h3>Prashant</h3>
+                    <p class="team-role">Member 2</p>
+                    <p class="team-bio">Creating beautiful and intuitive user interfaces for PrayasOS.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon github"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon linkedin"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="team-image-container">
+                        <img src="./assets/team/raj.png" alt="Raj" class="team-image">
+                    </div>
+                    <h3>Raj Krishna</h3>
+                    <p class="team-role">Member 3 <br>(Group Leader)</p>
+                    <p class="team-bio">Specializing in system optimization and performance tuning for PrayasOS.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon github"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon linkedin"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="team-image-container">
+                        <img src="./assets/team/rajul1.png" alt="Rajul" class="team-image">
+                    </div>
+                    <h3>Rajul</h3>
+                    <p class="team-role">Member 4</p>
+                    <p class="team-bio">Expert in Kernal of PrayasOS and system architecture and backend development for PrayasOS.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon github"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon linkedin"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+                <div class="team-card" data-aos="fade-up" data-aos-delay="400">
+                    <div class="team-image-container">
+                        <img src="./assets/team/pranchal.jpg" alt="Pranchal" class="team-image">
+                    </div>
+                    <h3>Pranchal</h3>
+                    <p class="team-role">Member 5</p>
+                    <p class="team-bio">Formulating Documentation - thesis work for PrayasOS.</p>
+                    <div class="social-links">
+                        <a href="#" class="social-icon github"><i class="fab fa-github"></i></a>
+                        <a href="#" class="social-icon linkedin"><i class="fab fa-linkedin"></i></a>
+                        <a href="#" class="social-icon twitter"><i class="fab fa-twitter"></i></a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Achievements Section -->
+    <section class="achievements-section" data-aos="fade-up">
+        <div class="container">
+            <h2 class="section-title">Our Achievements</h2>
+            <div class="achievements-grid">
+                <div class="achievement-card" data-aos="fade-up" data-aos-delay="100">
+                    <div class="achievement-number">10K+</div>
+                    <h3>Active Users</h3>
+                    <p>Growing community of satisfied users worldwide</p>
+                </div>
+                <div class="achievement-card" data-aos="fade-up" data-aos-delay="200">
+                    <div class="achievement-number">50+</div>
+                    <h3>Contributors</h3>
+                    <p>Dedicated developers and contributors</p>
+                </div>
+                <div class="achievement-card" data-aos="fade-up" data-aos-delay="300">
+                    <div class="achievement-number">100%</div>
+                    <h3>Open Source</h3>
+                    <p>Completely transparent and community-driven</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Join Us Section -->
+    <section class="join-section" data-aos="fade-up">
+        <div class="container">
+            <div class="join-content">
+                <h2>Gratitude to CSJMU</h2>
+                <div class="thank-you-card">
+                    <div class="university-logo">
+                        <i class="fas fa-university"></i>
+                    </div>
+                    <p class="thank-you-message">We extend our heartfelt gratitude to the Electronics & Communication Engineering Department of CSJMU University for providing us with the platform and support to bring PrayasOS to life. Your guidance and encouragement have been instrumental in our journey of innovation.</p>
+                    <div class="department-details">
+                        <h3>Department of Electronics & Communication Engineering</h3>
+                        <p>Chhatrapati Shahu Ji Maharaj University, Kanpur</p>
+                    </div>
+                    <div class="thank-you-decoration">
+                        <i class="fas fa-heart"></i>
+                        <i class="fas fa-star"></i>
+                        <i class="fas fa-heart"></i>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- subfooter -->
+    <div class="subfooter">
+        <div class="container flex subfooter-container">
+            <a class="hover-link" href="#">Contacts Team<br></a>
+            <a class="hover-link" href="#">Privacy Policy<br></a>
+            <a class="hover-link" href="#">Terms & Conditions</a>
+            <a class="hover-link" href="#"> PrayasOS © Copyright-2025</a>
+        </div>
+    </div>
+
+    <script src="https://kit.fontawesome.com/c1fc3d2826.js" crossorigin="anonymous"></script>
+    <script src="https://unpkg.com/aos@2.3.1/dist/aos.js"></script>
+    <script type="module" src="homepage.js"></script>
+
+    <script>
+        // Initialize AOS
+        AOS.init({
+            duration: 800,
+            once: true
+        });
+
+        const toggleButton = document.getElementById('nav-toggle');
+        const navLinks = document.getElementById('nav-links');
+        const bigimage = document.getElementById('biglogo');
+
+        toggleButton.addEventListener('click', () => {
+            navLinks.classList.toggle('active');
+        });
+    </script>
+    <script>
+        const darkModeToggle = document.getElementById('darkModeToggle');
+        const image = document.getElementById('mainlogo');
+        // const bigimage = document.getElementById('biglogo');
+        const root = document.documentElement;
+        const icon = document.getElementById('darkModeIcon');
+
+        // Check localStorage for dark mode state
+        let isDarkMode = localStorage.getItem('darkMode') === 'true';
+
+        // Apply initial state
+        if (isDarkMode) {
+            applyDarkMode();
+        }
+
+        function applyDarkMode() {
+            root.style.setProperty('--primary-text-color', '#d3e0ea');
+            root.style.setProperty('--secondary-text-color', '#b0b8c1');
+            root.style.setProperty('--accent-color', '#66ffcc');
+            root.style.setProperty('--accent-color-dark', '#33bbee');
+            root.style.setProperty('--nav-bg-color', 'rgba(17, 17, 27, 0.95)');
+            root.style.setProperty('--nav-text-color', '#d9bfff');
+            root.style.setProperty('--nav-hover-color', '#e0c2ff');
+            root.style.setProperty('--all-white', '#000000');
+            root.style.setProperty('--all-black', '#ffffff');
+            root.style.setProperty('--popup-bg-color', '#1c86efd5');
+            image.src = './assets/asset 11.png';
+            biglogo.src = './assets/asset 11.png';
+            document.body.style.backgroundImage = "url('./assets/darkbackground1.png')";
+            icon.classList.remove('fa-moon');
+            icon.classList.add('fa-sun');
+        }
+
+        function applyLightMode() {
+            root.style.setProperty('--primary-text-color', '#183b56');
+            root.style.setProperty('--secondary-text-color', '#2f3030');
+            root.style.setProperty('--accent-color', '#10A37F');
+            root.style.setProperty('--accent-color-dark', '#0673b7');
+            root.style.setProperty('--nav-bg-color', 'rgba(24, 24, 37, 0.8)');
+            root.style.setProperty('--nav-text-color', 'rgb(55, 0, 122)');
+            root.style.setProperty('--nav-hover-color', '#a78bfa');
+            root.style.setProperty('--all-white', '#ffffff');
+            root.style.setProperty('--all-black', '#000000');
+            root.style.setProperty('--popup-bg-color', '#ffffff');
+            image.src = './assets/asset 1.png';
+            biglogo.src = './assets/asset 1.png';
+            document.body.style.backgroundImage = "url('./assets/background.png')";
+            icon.classList.remove('fa-sun');
+            icon.classList.add('fa-moon');
+        }
+
+        darkModeToggle.addEventListener('click', () => {
+            isDarkMode = !isDarkMode;
+            localStorage.setItem('darkMode', isDarkMode);
+            
+            if (isDarkMode) {
+                applyDarkMode();
+            } else {
+                applyLightMode();
+            }
+        });
+    </script>
+</body>
+
+</html> 
